@@ -1,6 +1,7 @@
 <?php
 namespace Qbus\NginxCache\Hooks;
 
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 /**
  * nginx_cache – TYPO3 extension to manage the nginx cache
  * Copyright (C) 2016 Qbus GmbH
@@ -15,7 +16,6 @@ namespace Qbus\NginxCache\Hooks;
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -27,8 +27,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class SetPageCacheHook
 {
     /**
-     * @param array $params
-     * @param \TYPO3\CMS\Core\Cache\Frontend\FrontendInterface $frontend
+     * @param array             $params
+     * @param FrontendInterface $frontend
      */
     public function set($params, $frontend)
     {

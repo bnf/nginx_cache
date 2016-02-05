@@ -1,6 +1,9 @@
 <?php
 namespace Qbus\NginxCache\Cache\Backend;
 
+use TYPO3\CMS\Core\Cache\Exception;
+use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
+
 /**
  * nginx_cache – TYPO3 extension to manage the nginx cache
  * Copyright (C) 2016 Qbus GmbH
@@ -29,13 +32,13 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     /**
      * Saves data in a cache file.
      *
-     * @param string $entryIdentifier An identifier for this specific cache entry
-     * @param string $data The data to be stored
-     * @param array $tags Tags to associate with this cache entry
-     * @param int $lifetime Lifetime of this cache entry in seconds. If NULL is specified, the default lifetime is used. "0" means unlimited liftime.
+     * @param  string               $entryIdentifier An identifier for this specific cache entry
+     * @param  string               $data            The data to be stored
+     * @param  array                $tags            Tags to associate with this cache entry
+     * @param  int                  $lifetime        Lifetime of this cache entry in seconds. If NULL is specified, the default lifetime is used. "0" means unlimited liftime.
      * @return void
-     * @throws \TYPO3\CMS\Core\Cache\Exception if no cache frontend has been set.
-     * @throws \TYPO3\CMS\Core\Cache\Exception\InvalidDataException if the data to be stored is not a string.
+     * @throws Exception            if no cache frontend has been set.
+     * @throws InvalidDataException if the data to be stored is not a string.
      */
     public function set($entryIdentifier, $data, array $tags = array(), $lifetime = null)
     {
@@ -43,7 +46,7 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
 
         if ($lifetime === 0) {
             // unlimited is not supported by nginx
-            $lifetime = 24*60*60;
+            $lifetime = 24 * 60 * 60;
         }
 
         header('X-Accel-Expires: ' . $lifetime);
@@ -52,8 +55,8 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     /**
      * Removes all cache entries matching the specified identifier.
      *
-     * @param string $entryIdentifier Specifies the cache entry to remove
-     * @return bool TRUE if (at least) an entry could be removed or FALSE if no entry was found
+     * @param  string $entryIdentifier Specifies the cache entry to remove
+     * @return bool   TRUE if (at least) an entry could be removed or FALSE if no entry was found
      */
     public function remove($entryIdentifier)
     {
@@ -90,7 +93,7 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     /**
      * Removes all cache entries of this cache which are tagged by the specified tag.
      *
-     * @param string $tag The tag the entries must have
+     * @param  string $tag The tag the entries must have
      * @return void
      */
     public function flushByTag($tag)
@@ -102,5 +105,4 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
             $this->remove($identifier);
         }
     }
-
 }
