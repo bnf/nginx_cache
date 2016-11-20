@@ -49,6 +49,9 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
             $lifetime = 24 * 60 * 60;
         }
 
+        /* Note: We use an explicit opt-in strategy to define requests as cachable.
+         * That means this functionality relies on the "fastcgi_cache_valid 0"
+         * in nginx.conf as documented in README.rst  */
         header('X-Accel-Expires: ' . $lifetime);
     }
 
