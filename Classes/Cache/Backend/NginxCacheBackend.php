@@ -101,8 +101,6 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
      */
     public function flushByTag($tag)
     {
-        $this->findIdentifiersByTag($tag);
-
         $identifiers = $this->findIdentifiersByTag($tag);
         foreach ($identifiers as $identifier) {
             $this->remove($identifier);
