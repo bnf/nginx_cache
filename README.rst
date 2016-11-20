@@ -25,6 +25,16 @@ Therefor you need to configure a fastcgi cache path in the http section
 
     http {
         fastcgi_cache_path /var/nginx/cache/TYPO3 levels=1:2 keys_zone=TYPO3:10m inactive=24h;
+
+        # We suggest to copy the path to /etc/nginx/perl/lib, to prevent attackers (that use
+        # TYPO3 security issues) to inject a new purge.pm, and thus get access to e.g.
+        # your https keys (That means on EXT:nginx_cache major update you need to check
+        # for changes. Promise: We'll do that for major upgrades only).
+        #perl_modules /etc/nginx/perl/lib;
+        # instead of
+        perl_modules /path/to/your/webroot/typo3conf/ext/nginx_cache/Resources/Private/nginx_purge;
+
+        perl_require purge.pm;
     }
 
 And in your php location you need to configure the desired cache behaviour:
@@ -52,26 +62,28 @@ And in your php location you need to configure the desired cache behaviour:
         add_header X-Cache  $upstream_cache_status;
     }
 
-Flush Helper compilation
-************************
-This extension includes a helper programm to clear the nginx cache.
+    location @purge {
+        allow 127.0.0.1;
+        deny all;
 
-Background: Nginx stores the cache files with a 600 file mode. That forbids
-the php process to remove the cache if run under another user than nginx.
+        set $purge_path "/var/nginx/cache/TYPO3";
+        set $purge_levels "1:2";
+        set $purge_cache_key "$scheme://$host$request_uri";
+        if ($request_uri = /*) {
+            set $purge_all 1;
+        }
 
-This helper programm needs to be compiled, and configured as setuid
-programm launched as nginx user.
-We're using a C programm, since scripts can't be used with the setuid bit.
-Note: You'll be prompted for a sudo password to be able to set
-the setuid bit and the owner.
+        perl NginxCache::Purge::handler;
+    }
 
-Use the provided Makefile to launch the compiler:
+    location / {
+        error_page 405 = @purge;
+        if ($request_method = PURGE) {
+            return 405;
+        }
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
 
-.. code-block:: bash
-
-    cd typo3conf/ext/nginx_cache/Resources/Private/nginx_purge
-    # You sudo password will be requested for the setuid operation
-    make
 
 Known Issues
 ------------

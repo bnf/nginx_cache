@@ -3,6 +3,8 @@ namespace Qbus\NginxCache\Cache\Backend;
 
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
+use TYPO3\CMS\Core\Http\HttpRequest;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * nginx_cache – TYPO3 extension to manage the nginx cache
@@ -27,8 +29,6 @@ use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
  */
 class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend
 {
-    const CMD = 'typo3conf/ext/nginx_cache/Resources/Private/nginx_purge/nginx_purge';
-
     /**
      * Saves data in a cache file.
      *
@@ -63,20 +63,16 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
      */
     public function remove($entryIdentifier)
     {
-        $levels = '1:2';
-        $levels = explode(':', $levels);
+        $url = parent::get($entryIdentifier);
 
-        $file = '';
-        $i = 0;
-        foreach ($levels as $level) {
-            $level = (int) $level;
-
-            $file .= substr($entryIdentifier, -($level + $i), $level) . '/';
-            $i += $level;
+        try {
+            /* @var $httpRequest HttpRequest */
+            $httpRequest = GeneralUtility::makeInstance(HttpRequest::class, $url);
+            $httpRequest->setMethod('PURGE');
+            $response = $httpRequest->send()->getBody();
+            error_log($response);
+        } catch (\Exception $e) {
         }
-
-        $file .= $entryIdentifier;
-        exec(PATH_site . self::CMD . ' ' . escapeshellarg($file));
 
         return parent::remove($entryIdentifier);
     }
@@ -88,7 +84,16 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
      */
     public function flush()
     {
-        exec(PATH_site . self::CMD);
+        $url = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . '*';
+        try {
+            /* @var $httpRequest HttpRequest */
+            $httpRequest = GeneralUtility::makeInstance(HttpRequest::class, $url);
+            $httpRequest->setMethod('PURGE');
+
+            $response = $httpRequest->send()->getBody();
+            error_log($response);
+        } catch (\Exception $e) {
+        }
 
         parent::flush();
     }
