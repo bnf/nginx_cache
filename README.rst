@@ -48,7 +48,7 @@ And in your php location you need to configure the desired cache behaviour:
         # Ignore all cache headers, besides X-Accel-Expires
         fastcgi_ignore_headers "Expires" "Cache-Control" "Vary";
 
-	# For debugging only
+        # For debugging only
         add_header X-Cache  $upstream_cache_status;
     }
 
