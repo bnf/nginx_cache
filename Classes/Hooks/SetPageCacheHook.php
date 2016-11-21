@@ -1,7 +1,6 @@
 <?php
 namespace Qbus\NginxCache\Hooks;
 
-use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 /**
  * nginx_cache – TYPO3 extension to manage the nginx cache
  * Copyright (C) 2016 Qbus GmbH
@@ -16,6 +15,7 @@ use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
