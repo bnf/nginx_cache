@@ -84,6 +84,9 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
      */
     public function flush()
     {
+        /* FIXME: this won't work for cli requests. We could try do derive the site_url from
+         * existing cache entries (using findIdentifierByTag?).
+         * Or introduce a configure option to set the flushAll URL. */
         $url = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . '*';
         try {
             /* @var $httpRequest HttpRequest */
