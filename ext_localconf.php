@@ -15,3 +15,6 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['nginx_cach
 
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/cache/frontend/class.t3lib_cache_frontend_variablefrontend.php']['set'][$_EXTKEY] =
     \Qbus\NginxCache\Hooks\SetPageCacheHook::class . '->set';
+
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['pageLoadedFromCache'][$_EXTKEY]=
+    \Qbus\NginxCache\Hooks\PageLoadedFromCacheHook::class . '->loadedFromCache';

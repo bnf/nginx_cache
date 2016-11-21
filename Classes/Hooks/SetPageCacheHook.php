@@ -45,18 +45,32 @@ class SetPageCacheHook
         $temp_content = (isset($data['temp_content']) && $data['temp_content']);
         $tsfe = $this->getTypoScriptFrontendController();
 
-        $cachable = (
+        $isLaterCachable = (
             $temp_content === false &&
             $tsfe->isStaticCacheble() &&
             $tsfe->doWorkspacePreview() === false &&
+            in_array('nginx_cache_ignore', $tags) === false
+        );
+
+        $cachable = (
+            $isLaterCachable &&
             strpos($uri, '?') === false &&
-            in_array('nginx_cache_ignore', $tags) === false &&
             $this->isAdminPanelVisible() === false &&
             $this->getEnvironmentService()->getServerRequestMethod() === 'GET'
         );
 
         if ($cachable) {
             $this->getCacheManager()->getCache('nginx_cache')->set(md5($uri), $uri, $tags, $lifetime);
+        }
+
+        if ($isLaterCachable) {
+            /* We store these values here, in case we ever loose the cache in nginx.
+             * In that case TYPO3 is requested and retrieves the cached content from cache_pages.
+             * For that case we install a PageLoadedFromCache Hook, that uses these data
+             * to decide a) whether data should be cached and b) which tags have to be assigned.
+             * (As the tags are not available in that hook)
+             */
+            $params['variable']['tx_nginx_cache_tags'] = $tags;
         }
     }
 
