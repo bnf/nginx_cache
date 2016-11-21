@@ -83,17 +83,3 @@ And in your php location you need to configure the desired cache behaviour:
         }
         try_files $uri $uri/ /index.php$is_args$args;
     }
-
-
-Known Issues
-------------
-
-- Frontend editing not tested – probably not working because edit icons will be cached
-
-This issue can currently be avoided by using a config.no_cache=1 hack for logged in backend users:
-
-.. code-block:: txt
-
-    [globalVar = TSFE:beUserLogin = 1]
-        config.no_cache = 1
-    [global]

@@ -49,6 +49,7 @@ class SetPageCacheHook
             $temp_content === false &&
             $tsfe->isStaticCacheble() &&
             $tsfe->doWorkspacePreview() === false &&
+            $this->isFrontendEditingActive() === false &&
             in_array('nginx_cache_ignore', $tags) === false
         );
 
@@ -83,6 +84,20 @@ class SetPageCacheHook
             $this->getTypoScriptFrontendController()->isBackendUserLoggedIn() &&
             $GLOBALS['BE_USER'] instanceof \TYPO3\CMS\Backend\FrontendBackendUserAuthentication &&
             $GLOBALS['BE_USER']->isAdminPanelVisible()
+        );
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isFrontendEditingActive()
+    {
+        return (
+            /* Note: we do not use $GLOBALS['BE_USER']->isFrontendEditingActive() as that checks
+             * additional for adminPanel->isAdminModuleEnabled('edit'), but that has no influence
+             * on cache clearing. */
+            $GLOBALS['TSFE']->displayEditIcons == 1 ||
+            $GLOBALS['TSFE']->displayFieldEditIcons == 1
         );
     }
 
