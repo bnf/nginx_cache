@@ -51,7 +51,8 @@ class SetPageCacheHook
             $tsfe->doWorkspacePreview() === false &&
             strpos($uri, '?') === false &&
             in_array('nginx_cache_ignore', $tags) === false &&
-            $this->isAdminPanelVisible() === false
+            $this->isAdminPanelVisible() === false &&
+            $this->getEnvironmentService()->getServerRequestMethod() === 'GET'
         );
 
         if ($cachable) {
@@ -85,5 +86,13 @@ class SetPageCacheHook
     protected function getCacheManager()
     {
         return GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
+    }
+
+    /**
+     * @return \TYPO3\CMS\Extbase\Service\EnvironmentService
+     */
+    protected function getEnvironmentService()
+    {
+        return GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Service\EnvironmentService::class);
     }
 }
