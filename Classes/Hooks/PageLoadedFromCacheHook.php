@@ -23,6 +23,10 @@ class PageLoadedFromCacheHook
             return;
         }
 
+        /* We populate config into $TSFE as we do needed it for the isAdminPanelVisisble check.
+         * $TSFE does the same after this hook (pageLoadedFromCache). So it should be safe.  */
+        $tsfe->config = $row['cache_data'];
+
         $uri = GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL');
 
         $cachable = (
