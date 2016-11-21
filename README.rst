@@ -88,10 +88,9 @@ And in your php location you need to configure the desired cache behaviour:
 Known Issues
 ------------
 
-- The admin panel is rendered into the cache, if enabled
 - Frontend editing not tested – probably not working because edit icons will be cached
 
-Those issues can currently be avoided by using a config.no_cache=1 hack for logged in backend users:
+This issue can currently be avoided by using a config.no_cache=1 hack for logged in backend users:
 
 .. code-block:: txt
 

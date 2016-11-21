@@ -50,12 +50,25 @@ class SetPageCacheHook
             $tsfe->isStaticCacheble() &&
             $tsfe->doWorkspacePreview() === false &&
             strpos($uri, '?') === false &&
-            in_array('nginx_cache_ignore', $tags) === false
+            in_array('nginx_cache_ignore', $tags) === false &&
+            $this->isAdminPanelVisible() === false
         );
 
         if ($cachable) {
             $this->getCacheManager()->getCache('nginx_cache')->set(md5($uri), $uri, $tags, $lifetime);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isAdminPanelVisible()
+    {
+        return (
+            $this->getTypoScriptFrontendController()->isBackendUserLoggedIn() &&
+            $GLOBALS['BE_USER'] instanceof \TYPO3\CMS\Backend\FrontendBackendUserAuthentication &&
+            $GLOBALS['BE_USER']->isAdminPanelVisible()
+        );
     }
 
     /**
