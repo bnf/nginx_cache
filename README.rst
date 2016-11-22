@@ -93,3 +93,4 @@ Advantages over nc_staticfilecache
 ----------------------------------
 
 - Headers can be cached (config.additionalHeaders)
+- Testsuite running on travis-ci

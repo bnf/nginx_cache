@@ -1,7 +1,7 @@
 {
     "name": "qbus/nginx-cache",
     "type": "typo3-cms-extension",
-    "description": "Automatic nginx flush for menus and levelmedia",
+    "description": "NGINX Cache Manager for TYPO3",
     "keywords": [
         "TYPO3",
         "extension"
