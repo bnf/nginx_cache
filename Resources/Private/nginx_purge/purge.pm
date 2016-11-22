@@ -40,7 +40,7 @@ sub handler {
         unlink $cachefile;
         $r->print("Removed cache file ", $cachefile, ".\n");
     } else {
-        $r->print("Cache file ", $cachefile, " not found.\n");
+        $r->print("Cache file ", $cachefile, " for cache_key: ", $cache_key, " not found.\n");
     }
 
     return OK;
