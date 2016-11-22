@@ -1,5 +1,9 @@
 NGINX Cache Manager for TYPO3
 =============================
+
+.. image:: https://travis-ci.org/qbus-agentur/nginx_cache.svg?branch=master
+   :target: https://travis-ci.org/qbus-agentur/nginx_cache
+
 This TYPO3 extensions adds the required bits to use NGINX's fastcgi_cache for TYPO3 pages.
 It adds appropriate cache control headers, documents the required NGINX configuration
 and flushes the cache when content changes.
