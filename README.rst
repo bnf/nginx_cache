@@ -41,6 +41,11 @@ And in your php location you need to configure the desired cache behaviour:
 
 .. code-block:: nginx
 
+    error_page 405 = @purge;
+    if ($request_method = PURGE) {
+        return 405;
+    }
+
     location ~ \.php$ {
         include fastcgi.conf;
         fastcgi_pass php-fpm;
@@ -77,10 +82,6 @@ And in your php location you need to configure the desired cache behaviour:
     }
 
     location / {
-        error_page 405 = @purge;
-        if ($request_method = PURGE) {
-            return 405;
-        }
         try_files $uri $uri/ /index.php$is_args$args;
     }
 
