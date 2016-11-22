@@ -83,3 +83,8 @@ And in your php location you need to configure the desired cache behaviour:
         }
         try_files $uri $uri/ /index.php$is_args$args;
     }
+
+Advantages over nc_staticfilecache
+----------------------------------
+
+- Headers can be cached (config.additionalHeaders)
