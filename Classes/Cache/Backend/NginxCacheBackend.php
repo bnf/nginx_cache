@@ -63,6 +63,11 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     public function remove($entryIdentifier)
     {
         $url = parent::get($entryIdentifier);
+        if ($url === false) {
+            /* The key is not available. Do nothing. */
+            return false;
+        }
+
         $this->purge($url);
 
         return parent::remove($entryIdentifier);
