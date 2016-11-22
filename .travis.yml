@@ -1,0 +1,70 @@
+language: php
+
+php:
+  - 5.6
+  - 7.0
+
+env:
+  - TYPO3_VERSION=^7.6
+  - TYPO3_VERSION=~8.4.0
+
+sudo: false
+
+matrix:
+  fast_finish: true
+  exclude:
+    - php: 5.6
+      env: TYPO3_VERSION=~8.4.0
+
+cache:
+  apt: true
+  directories:
+    - $HOME/.composer/cache
+
+before_install:
+  - echo $TRAVIS_PHP_VERSION
+  - if php -i | grep -q xdebug; then phpenv config-rm xdebug.ini; fi
+  - composer self-update
+  - composer --version
+
+before_script:
+  - composer require typo3/cms="$TYPO3_VERSION"
+  # Restore composer.json (was changed by the prior composer require)
+  - git checkout -- composer.json
+  - export TYPO3_PATH_WEB=$PWD/.Build/Web
+  - ./.Build/bin/typo3cms install:setup --non-interactive --database-user-name="root" --database-host-name="localhost" --database-port="3306" --database-name="travis_test" --admin-user-name="admin" --admin-password="password" --site-name="Travis Install" --site-setup-type="createsite"
+  - ./.Build/bin/typo3cms configuration:set SYS/displayErrors 1
+  - ./.Build/bin/typo3cms configuration:set SYS/systemLog error_log
+  - ./.Build/bin/typo3cms configuration:set SYS/systemLogLevel 0
+  - ./.Build/bin/typo3cms extension:activate cache_status
+  - ./.Build/bin/typo3cms extension:activate nginx_cache
+
+addons:
+  apt:
+    packages:
+      - nginx-extras
+      - realpath
+      - parallel
+
+notifications:
+  email:
+    - bfr@qbus.de
+
+install:
+  #- composer install
+  - .travis/install-nginx.sh
+
+script:
+  - >
+    echo;
+    echo "Running php lint";
+    find . -name \*.php ! -path "./.Build/*" | parallel --gnu php -d display_errors=stderr -l {} > /dev/null \;
+
+  - curl -vs 'http://localhost:8080/' &> /dev/stdout
+  - curl -vs 'http://localhost:8080/' &> /dev/stdout
+  - export HOST='http://localhost:8080'
+  - .travis/run-tests.sh
+  #- echo "<?php phpinfo();" > .Build/Web/info.php
+  #- curl -vs 'http://localhost:8080/info.php' &> /dev/stdout
+  - cat /tmp/error.log
+  - cat /tmp/access.log

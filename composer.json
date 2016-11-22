@@ -1,0 +1,64 @@
+{
+    "name": "qbus/nginx-cache",
+    "type": "typo3-cms-extension",
+    "description": "Automatic nginx flush for menus and levelmedia",
+    "keywords": [
+        "TYPO3",
+        "extension"
+    ],
+    "homepage": "https://www.qbus.de",
+    "authors": [
+        {
+            "name": "Benjamin Franzke",
+            "email": "bfr@qbus.de",
+            "role": "Developer",
+            "homepage": "https://www.qbus.de"
+        }
+    ],
+    "license": "GPL-2.0+",
+    "require": {
+        "typo3/cms-core": ">=7.6.0,<8.6"
+    },
+    "require-dev": {
+        "helhum/typo3-console": "^4.0.1",
+        "qbus/cache-status": "^1.1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Qbus\\NginxCache\\": "Classes"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Qbus\\NginxCache\\Tests\\": "Tests",
+            "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/core/Tests/",
+            "TYPO3\\CMS\\Fluid\\Tests\\": ".Build/vendor/typo3/cms/typo3/sysext/fluid/Tests/"
+        }
+    },
+    "replace": {
+        "nginx_cache": "self.version",
+        "typo3-ter/nginx-cache": "self.version"
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "mkdir -p .Build/Web/typo3conf/ext/",
+            "[ -L .Build/Web/typo3conf/ext/nginx_cache ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/nginx_cache"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        },
+        "typo3/cms": {
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "web-dir": ".Build/Web"
+        },
+        "helhum/typo3-console": {
+           "install-extension-dummy": false
+        }
+    }
+}

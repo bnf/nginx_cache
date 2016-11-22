@@ -1,0 +1,74 @@
+## 1
+# X-Cache: Miss TYPO3-Cache: Miss
+curl http://t3master7.dev/test-page.html
+
+# X-Cache: Hit TYPO3-Cache: Miss
+curl http://t3master7.dev/test-page.html
+
+
+
+## 2
+# X-Cache: Miss TYPO3-Cache: Miss
+curl -I http://t3master7.dev/test-page.html
+
+# X-Cache: Miss TYPO3-Cache: Hit
+curl http://t3master7.dev/test-page.html
+
+# X-Cache: Hit TYPO3-Cache: Hit
+curl http://t3master7.dev/test-page.html
+
+
+
+## 3
+# X-Cache: Miss TYPO3-cache: Miss
+curl http://t3master7.dev/test-page.html
+
+# X-Cache: Miss TYPO3-cache: Hit
+curl http://t3master7.dev/test-page/
+
+# X-Cache: Hit TYPO3-cache: Hit
+curl http://t3master7.dev/test-page/
+
+
+
+## 4
+# X-Cache: Miss TYPO3-Cache: Miss
+curl -I http://t3master7.dev/test-page.html
+
+# X-Cache: Miss TYPO3-Cache: Hit
+curl http://t3master7.dev/test-page/
+
+# X-Cache: Miss TYPO3-Cache: Hit
+curl -I http://t3master7.dev/test-page.html
+
+# X-Cache: Miss TYPO3-Cache: Hit
+curl http://t3master7.dev/test-page.html
+
+# X-Cache: Hit TYPO3-Cache: Hit
+curl -I http://t3master7.dev/test-page.html
+
+
+## 5
+# X-Cache: Miss TYPO3-Cache: Miss
+curl -d login=1 http://t3master7.dev/page-wih-admin-panel.html
+
+# X-Cache: Miss TYPO3-Cache: Hit
+curl -d login=1 http://t3master7.dev/page-wih-admin-panel.html
+
+# X-Cache: Miss TYPO3-Cache: Hit
+curl http://t3master7.dev/page-wih-admin-panel.html
+
+# X-Cache: Hit TYPO3-Cache: Hit
+curl http://t3master7.dev/page-wih-admin-panel.html
+
+## 6
+uncached page (no_cache=1 in page properties)
+
+## 7
+page with USER_INT
+
+## 8
+page with Extbase non-cachable extension
+
+## 9
+cli cache clearing
