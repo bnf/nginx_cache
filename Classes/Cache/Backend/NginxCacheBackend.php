@@ -3,7 +3,6 @@ namespace Qbus\NginxCache\Cache\Backend;
 
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
-use TYPO3\CMS\Core\Http\HttpRequest;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -64,15 +63,7 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     public function remove($entryIdentifier)
     {
         $url = parent::get($entryIdentifier);
-
-        try {
-            /* @var $httpRequest HttpRequest */
-            $httpRequest = GeneralUtility::makeInstance(HttpRequest::class, $url);
-            $httpRequest->setMethod('PURGE');
-            $response = $httpRequest->send()->getBody();
-            error_log($response);
-        } catch (\Exception $e) {
-        }
+        $this->purge($url);
 
         return parent::remove($entryIdentifier);
     }
@@ -88,15 +79,7 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
          * existing cache entries (using findIdentifierByTag?).
          * Or introduce a configure option to set the flushAll URL. */
         $url = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . '*';
-        try {
-            /* @var $httpRequest HttpRequest */
-            $httpRequest = GeneralUtility::makeInstance(HttpRequest::class, $url);
-            $httpRequest->setMethod('PURGE');
-
-            $response = $httpRequest->send()->getBody();
-            error_log($response);
-        } catch (\Exception $e) {
-        }
+        $this->purge($url);
 
         parent::flush();
     }
@@ -113,5 +96,48 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
         foreach ($identifiers as $identifier) {
             $this->remove($identifier);
         }
+    }
+
+    /**
+     * @param  string $url
+     * @return string
+     */
+    protected function purge($url)
+    {
+        $content = '';
+
+        print_r($url);
+
+        if (class_exists('\\TYPO3\\CMS\\Core\\Http\\RequestFactory')) {
+            try {
+                /** @var \TYPO3\CMS\Core\Http\RequestFactory $requestFactory */
+                $requestFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\RequestFactory::class);
+                $response = $requestFactory->request($url, 'PURGE');
+
+                if ($response->getStatusCode() === 200) {
+                    if ($response->getHeader('Content-Type') === 'text/plain') {
+                        $content = $response->getBody()->getContents();
+                    }
+                }
+            } catch (\GuzzleHttp\Exception\RequestException $e) {
+                error_log("request for url '" . $url . "' failed.");
+                error_log($e->getMessage());
+                throw $e;
+            }
+
+        } else {
+            try {
+                $httpRequest = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\HttpRequest::class, $url);
+                $httpRequest->setMethod('PURGE');
+
+                $content = $httpRequest->send()->getBody();
+            } catch (\Exception $e) {
+            }
+        }
+
+        /* Temporary */
+        error_log($content);
+
+        return $content;
     }
 }
