@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use nginx;
 use Digest::MD5 qw(md5_hex);
+use File::Find;
 
 sub handler {
     my $r = shift;
@@ -21,8 +22,7 @@ sub handler {
         # in case of a possible configuration mistake (e.g. if $path is empty),
         # by searching for filenames with 32 chars.
         # TODO: Despite our 32 length check we should check $path to be something sensible
-        my @args = ('find', $path, '-type', 'f', '-name', '????????????????????????????????', '-exec', 'rm', '-f', '{}', '+');
-        system(@args);
+        File::Find::find(\&delete, $path);
         $r->print("Removed all cache files.\n");
         return OK;
     }
@@ -44,6 +44,10 @@ sub handler {
     }
 
     return OK;
+}
+
+sub delete {
+    -f && length == 32 && unlink
 }
 
 1;

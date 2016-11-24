@@ -115,6 +115,7 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     {
         $content = '';
 
+        /* RequestFactory is available as of TYPO3 8.1 */
         if (class_exists('\\TYPO3\\CMS\\Core\\Http\\RequestFactory')) {
             try {
                 /** @var \TYPO3\CMS\Core\Http\RequestFactory $requestFactory */
