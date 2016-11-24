@@ -5,7 +5,9 @@ set -x
 
 DIR=$(realpath $(dirname "$0"))
 USER=$(whoami)
-PHP_VERSION=$(phpenv version-name)
+command -v phpenv >/dev/null 2>&1 && PHP_VERSION=$(phpenv version-name) || PHP_VERSION=$(php -r "echo phpversion();")
+command -v phpenv >/dev/null 2>&1 && PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm" || PHP_FPM_BIN=$(command -v php-fpm)
+
 ROOT=$(realpath "$DIR/..")
 PORT=9000
 SERVER="/tmp/php.sock"
@@ -20,6 +22,8 @@ function tpl {
         -e "s|{SERVER}|$SERVER|g" \
         < $1 > $2
 }
+
+rm -rf "$DIR/nginx" "$DIR/var"
 
 # Make some working directories.
 mkdir "$DIR/nginx"
@@ -39,14 +43,15 @@ then
         --mode=daemon \
         --config="$HHVM_CONF"
 else
-    PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
+    #PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
     PHP_FPM_CONF="$DIR/nginx/php-fpm.conf"
 
     # Build the php-fpm.conf.
     tpl "$DIR/php-fpm.tpl.conf" "$PHP_FPM_CONF"
 
     # Start php-fpm
-    "$PHP_FPM_BIN" --fpm-config "$PHP_FPM_CONF"
+    [[ -f /tmp/php-fpm.pid ]] && pkill -F /tmp/php-fpm.pid
+    "$PHP_FPM_BIN" --fpm-config "$PHP_FPM_CONF" --pid /tmp/php-fpm.pid
 fi
 
 # Build the default nginx config files.
@@ -55,4 +60,5 @@ tpl "$DIR/fastcgi.tpl.conf" "$DIR/nginx/fastcgi.conf"
 tpl "$DIR/default-site.tpl.conf" "$DIR/nginx/sites-enabled/default-site.conf"
 
 # Start nginx.
+[[ -f /tmp/nginx.pid ]] && pkill -F /tmp/nginx.pid
 nginx -c "$DIR/nginx/nginx.conf"

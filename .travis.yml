@@ -28,16 +28,7 @@ before_install:
   - composer --version
 
 before_script:
-  - composer require typo3/cms="$TYPO3_VERSION"
-  # Restore composer.json (was changed by the prior composer require)
-  - git checkout -- composer.json
-  - export TYPO3_PATH_WEB=$PWD/.Build/Web
-  - ./.Build/bin/typo3cms install:setup --non-interactive --database-user-name="root" --database-host-name="localhost" --database-port="3306" --database-name="travis_test" --admin-user-name="admin" --admin-password="password" --site-name="Travis Install" --site-setup-type="createsite"
-  - ./.Build/bin/typo3cms configuration:set SYS/displayErrors 1
-  - ./.Build/bin/typo3cms configuration:set SYS/systemLog error_log
-  - ./.Build/bin/typo3cms configuration:set SYS/systemLogLevel 0
-  - ./.Build/bin/typo3cms extension:activate cache_status
-  - ./.Build/bin/typo3cms extension:activate nginx_cache
+  - .travis/setup-typo3.sh $TYPO3_VERSION
 
 addons:
   apt:
@@ -60,11 +51,11 @@ script:
     echo "Running php lint";
     find . -name \*.php ! -path "./.Build/*" | parallel --gnu php -d display_errors=stderr -l {} > /dev/null \;
 
-  - curl -vs 'http://localhost:8080/' &> /dev/stdout
-  - curl -vs 'http://localhost:8080/' &> /dev/stdout
-  - export HOST='http://localhost:8080'
+  - curl -vs 'http://localhost:8088/' &> /dev/stdout
+  - curl -vs 'http://localhost:8088/' &> /dev/stdout
+  - export HOST='http://localhost:8088'
   - .travis/run-tests.sh
   #- echo "<?php phpinfo();" > .Build/Web/info.php
-  #- curl -vs 'http://localhost:8080/info.php' &> /dev/stdout
+  #- curl -vs 'http://localhost:8088/info.php' &> /dev/stdout
   - cat /tmp/error.log
   - cat /tmp/access.log
