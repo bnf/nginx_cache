@@ -1,8 +1,10 @@
 #!/bin/bash
-set -ev
+#set -ev
 
 DIR=$(realpath $(dirname "$0"))
 ROOT=$(realpath "$DIR/..")
+
+source $DIR/assert.sh
 
 cookiefile=/tmp/nginx_cache-backend.cookie
 
@@ -22,10 +24,10 @@ function test_hit() {
 	content=$(curl $args -s -o /dev/null -v "${HOST}${url}" 2>&1 | grep -- "< X-\(Cache\|TYPO3-Cache\):" | sed "s/\r//g")
 
 	echo "Testing nginx state for $content"
-	echo $content | grep -q "X-Cache: $nginx"
+	echo $content | grep -q "X-Cache: $nginx" || return 1
 
 	echo "Testing typo3 state $content"
-	echo $content | grep -q "X-TYPO3-Cache: $typo3"
+	echo $content | grep -q "X-TYPO3-Cache: $typo3" || return 2
 }
 
 function login() {
@@ -42,50 +44,50 @@ function login() {
 }
 
 clear_cache
-test_hit / MISS MISS
-test_hit / HIT MISS
+assert_raises "test_hit / MISS MISS"
+assert_raises "test_hit / HIT MISS"
 
 clear_cache
-test_hit / MISS MISS -I
-test_hit / MISS HIT
-test_hit / HIT HIT
+assert_raises "test_hit / MISS MISS -I"
+assert_raises "test_hit / MISS HIT"
+assert_raises "test_hit / HIT HIT"
 
 clear_cache
-test_hit / MISS MISS
-test_hit /index.php MISS HIT
-test_hit /index.php HIT HIT
+assert_raises "test_hit / MISS MISS"
+assert_raises "test_hit /index.php MISS HIT"
+assert_raises "test_hit /index.php HIT HIT"
 
 clear_cache
-test_hit / MISS MISS -I
-test_hit /index.php MISS HIT
-test_hit / MISS HIT -I
-test_hit / MISS HIT
-test_hit / HIT HIT  -I
+assert_raises "test_hit / MISS MISS -I"
+assert_raises "test_hit /index.php MISS HIT"
+assert_raises "test_hit / MISS HIT -I"
+assert_raises "test_hit / MISS HIT"
+assert_raises "test_hit / HIT HIT  -I"
 
 echo "UPDATE sys_template set config = REPLACE(config, 'config.admPanel = 1\n', '')" | $ROOT/.Build/bin/typo3cms database:import
 clear_cache
 login
-test_hit / BYPASS MISS  "-b $cookiefile -c $cookiefile"
-test_hit / HIT MISS
-test_hit / BYPASS HIT "-b $cookiefile -c $cookiefile"
+assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
+assert_raises "test_hit / HIT MISS"
+assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
 #test_hit / MISS HIT
-test_hit / HIT HIT
+assert_raises "test_hit / HIT HIT"
 
 echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.Build/bin/typo3cms database:import
 clear_cache
 login
-test_hit / BYPASS MISS  "-b $cookiefile -c $cookiefile"
+assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
 # Cache may not be filled if admin panel is enabled
-test_hit / MISS HIT
-test_hit / BYPASS HIT "-b $cookiefile -c $cookiefile"
-test_hit / HIT HIT
+assert_raises "test_hit / MISS HIT"
+assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
+assert_raises "test_hit / HIT HIT"
 
 #echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.Build/bin/typo3cms database:import
 clear_cache
 login
-test_hit / BYPASS MISS  "-b $cookiefile -c $cookiefile"
-test_hit / BYPASS HIT "-b $cookiefile -c $cookiefile"
-test_hit / MISS HIT
-test_hit / HIT HIT
+assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
+assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
+assert_raises "test_hit / MISS HIT"
+assert_raises "test_hit / HIT HIT"
 
-echo "All tests passed!"
+assert_end "cache hit"
