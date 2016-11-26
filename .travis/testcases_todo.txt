@@ -72,3 +72,9 @@ page with Extbase non-cachable extension
 
 ## 9
 cli cache clearing
+
+## 10
+access using multiple domains on the same siteroot
+
+## 11
+access using multiple domains on multi-siteroot

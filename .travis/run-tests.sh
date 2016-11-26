@@ -4,12 +4,11 @@ set -ev
 DIR=$(realpath $(dirname "$0"))
 ROOT=$(realpath "$DIR/..")
 
-#ROOT=/home/ben/htdocs/t3master7
+cookiefile=/tmp/nginx_cache-backend.cookie
 
 function clear_cache() {
 	cd $ROOT
 	$ROOT/.Build/bin/typo3cms cache:flush
-	#$ROOT/typo3cms cache:flush
 	cd -
 	curl -X PURGE $HOST/*
 }
@@ -27,6 +26,19 @@ function test_hit() {
 
 	echo "Testing typo3 state $content"
 	echo $content | grep -q "X-TYPO3-Cache: $typo3"
+}
+
+function login() {
+	rm -f $cookiefile
+	data=$(curl -s -L -c $cookiefile "${HOST}/typo3/")
+	login_provider=$(echo $data | sed -n "s|.*\\(?loginProvider=[0-9]*\).*|\1|p")
+
+	code=$(curl -s -w "%{http_code}" -X POST -b $cookiefile -c $cookiefile -e ${HOST}/typo3/ --data "login_status=login&userident=password&username=admin&interface=backend" "${HOST}/typo3/${login_provider}")
+
+	if [ "$code" != 303 ]; then
+		(>&2 echo "Login failed.")
+		exit 1
+	fi
 }
 
 clear_cache
@@ -50,10 +62,30 @@ test_hit / MISS HIT -I
 test_hit / MISS HIT
 test_hit / HIT HIT  -I
 
+echo "UPDATE sys_template set config = REPLACE(config, 'config.admPanel = 1\n', '')" | $ROOT/.Build/bin/typo3cms database:import
 clear_cache
-# TODO backend login, writing a cookie $COOKIEFILE
-# TODO: place adminpanel on root page
-#test_hit / MISS MISS  -b $COOKIEFILE
-#test_hit / MISS HIT -b $COOKIEFILE
+login
+test_hit / BYPASS MISS  "-b $cookiefile -c $cookiefile"
+test_hit / HIT MISS
+test_hit / BYPASS HIT "-b $cookiefile -c $cookiefile"
 #test_hit / MISS HIT
-#test_hit / HIT HIT
+test_hit / HIT HIT
+
+echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.Build/bin/typo3cms database:import
+clear_cache
+login
+test_hit / BYPASS MISS  "-b $cookiefile -c $cookiefile"
+# Cache may not be filled if admin panel is enabled
+test_hit / MISS HIT
+test_hit / BYPASS HIT "-b $cookiefile -c $cookiefile"
+test_hit / HIT HIT
+
+#echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.Build/bin/typo3cms database:import
+clear_cache
+login
+test_hit / BYPASS MISS  "-b $cookiefile -c $cookiefile"
+test_hit / BYPASS HIT "-b $cookiefile -c $cookiefile"
+test_hit / MISS HIT
+test_hit / HIT HIT
+
+echo "All tests passed!"
