@@ -78,3 +78,9 @@ access using multiple domains on the same siteroot
 
 ## 11
 access using multiple domains on multi-siteroot
+
+## 12
+requests with query string that a) change the e.g. pagination and b) do not change e.g. utm_source
+
+## 13
+check for valid cache duration (including different timezones?)

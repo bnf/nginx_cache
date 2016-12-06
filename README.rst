@@ -16,6 +16,7 @@ Just install the extension, no configuration in TYPO3 needed.
 .. code-block:: bash
 
     typo3/cli_dispath.phpsh extbase extension:install nginx_cache
+    sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
 
 Though you'll need to configure NGINX and compile a cache flush helper, see below.
 
@@ -73,6 +74,15 @@ And in your php location you need to configure the desired cache behaviour:
 
     location @purge {
         allow 127.0.0.1;
+        # Depending on your servers setup (e.g. if your server is NATed to the public ip, our your fastcgi
+        # server is on another ip) you may also need to define the allowed purge ip's here
+        # If the cache flush fails with 127.0.0.1 fails, you can find those information in
+        # the nginx error log when clearing the cache. Open a shell and execute:
+        #   tail -f /var/log/nginx/error.log"
+        # ..and perform a frontend cache flush. You should see errors like:
+        #   access forbidden by rule, client: YY.YYY.YYY.YY, server: www.example.com, request: "PURGE / HTTP/1.1"
+        # In that case add the listed ip here
+        #allow YY.YYY.YYY.YY;
         deny all;
 
         set $purge_path "/var/nginx/cache/TYPO3";
@@ -89,8 +99,19 @@ And in your php location you need to configure the desired cache behaviour:
         try_files $uri $uri/ /index.php$is_args$args;
     }
 
+Make sure you have the right timezone set, or the cache may invalidate to late.
+(Though that applied to TYPO3 Core as well). /etc/php.ini:
+
+.. code-block:: ini
+
+date.timezone = "Europe/Berlin"
+
+
 Advantages over nc_staticfilecache
 ----------------------------------
 
 - Headers can be cached (config.additionalHeaders)
 - Testsuite running on travis-ci
+- Performant support for starttime/endtime (as long as TYPO3 does not fail to calculate the correct cache time)
+  (though nc_staticfilecache has that through .htaccess files,
+  but only for apache, not for nginx)
