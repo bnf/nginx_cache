@@ -1,3 +1,5 @@
+EXTKEY = $(notdir $(shell pwd))
+
 .travis/assert-1.1.sh:
 	wget https://raw.github.com/lehmannro/assert.sh/v1.1/assert.sh -O $@
 	ln -snf assert-1.1.sh .travis/assert.sh
@@ -12,3 +14,6 @@ check: .travis/assert-1.1.sh
 	pkill -F /tmp/php-fpm.pid
 	pkill -F /tmp/nginx.pid
 	rm -rf .travis/nginx/
+
+t3x-pack:
+	git archive -o $(EXTKEY)_`git describe --always --tags`.zip HEAD
