@@ -99,12 +99,12 @@ And in your php location you need to configure the desired cache behaviour:
         try_files $uri $uri/ /index.php$is_args$args;
     }
 
-Make sure you have the right timezone set, or the cache may invalidate to late.
-(Though that applied to TYPO3 Core as well). /etc/php.ini:
+Make sure you have the right timezone set, or the cache may invalidate too late.
+(Though that applies to TYPO3 Core as well). /etc/php.ini:
 
 .. code-block:: ini
 
-date.timezone = "Europe/Berlin"
+    date.timezone = "Europe/Berlin"
 
 
 Advantages over nc_staticfilecache
