@@ -43,6 +43,11 @@ function login() {
 	fi
 }
 
+
+$ROOT/.Build/bin/typo3cms extension:deactivate rsaauth
+$ROOT/.Build/bin/typo3cms configuration:remove BE/loginSecurityLevel --force
+
+
 clear_cache
 assert_raises "test_hit / MISS MISS"
 assert_raises "test_hit / HIT MISS"
