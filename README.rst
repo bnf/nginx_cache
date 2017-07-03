@@ -18,13 +18,13 @@ Just install the extension, no configuration in TYPO3 needed.
     typo3/cli_dispath.phpsh extbase extension:install nginx_cache
     sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
 
-Though you'll need to configure NGINX and compile a cache flush helper, see below.
+Afterwards you need to configure NGINX.
 
 NGINX configuration
 *******************
 You'll need to configure NGINX to cache the output of the php call.
-Therefor you need to configure a fastcgi cache path in the http section
-(that is outside your sever section):
+Therefore you need to specify a fastcgi cache path in the http section
+(that is outside your server section):
 
 .. code-block:: nginx
 
@@ -35,8 +35,9 @@ Therefor you need to configure a fastcgi cache path in the http section
         # TYPO3 security issues) to inject a new purge.pm, and thus get access to e.g.
         # your https keys (That means on EXT:nginx_cache major update you need to check
         # for changes. Promise: We'll do that for major upgrades only).
+	# So use:
         #perl_modules /etc/nginx/perl/lib;
-        # instead of
+        # ..instead of:
         perl_modules /path/to/your/webroot/typo3conf/ext/nginx_cache/Resources/Private/nginx_purge;
 
         perl_require purge.pm;
@@ -111,7 +112,7 @@ Advantages over nc_staticfilecache
 ----------------------------------
 
 - Headers can be cached (config.additionalHeaders)
-- Testsuite running on travis-ci
+- We have a testsuite running on travis-ci
 - Performant support for starttime/endtime (as long as TYPO3 does not fail to calculate the correct cache time)
-  (though nc_staticfilecache has that through .htaccess files,
+  (to be fair: nc_staticfilecache provides that through auto-generated .htaccess files,
   but only for apache, not for nginx)
