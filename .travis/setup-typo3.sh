@@ -3,7 +3,7 @@
 # Default to TYPO3 7.6 LTS
 export TYPO3_VERSION=${1:-^7.6}
 export DBNAME=nginx_cache_travis_test
-[[ -f $HOME/.my.cnf ]] && DBPASS=$(php -r "\$d = parse_ini_file('$HOME/.my.cnf'); if (isset(\$d['password'])) echo \$d['password'];") || DBPASS=""
+[[ -f $HOME/.my.cnf ]] && DBPASS=$(php -r "\$d = @parse_ini_file('$HOME/.my.cnf'); if (isset(\$d['password'])) echo \$d['password'];") || DBPASS=""
 [[ -n "$DBPASS" ]] && export PWARG="--database-user-password=$DBPASS" || export PWARG=""
 
 set -ve
