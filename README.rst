@@ -6,7 +6,7 @@ NGINX Cache Manager for TYPO3
 
 This TYPO3 extensions adds the required bits to use NGINX's fastcgi_cache for TYPO3 pages.
 It adds appropriate cache control headers, documents the required NGINX configuration
-and flushes the cache when content changes.
+and flushes the nginx cache when content changes.
 
 Configuration
 ------------
@@ -19,7 +19,7 @@ Just install the extension, no configuration in TYPO3 needed.
     # Fedora (RPM)
     sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
     # Debian (dpkg)
-    sudo apt install nginx libdigest-md5-file-perl libnginx-mod-http-perl
+    sudo apt install nginx libnginx-mod-http-perl libdigest-md5-file-perl
 
 Afterwards you need to configure NGINX.
 
@@ -78,14 +78,14 @@ And in your php location you need to configure the desired cache behaviour:
 
     location @purge {
         allow 127.0.0.1;
-        # Depending on your servers setup (e.g. if your server is NATed to the public ip, our your fastcgi
-        # server is on another ip) you may also need to define the allowed purge ip's here
-        # If the cache flush fails with 127.0.0.1 fails, you can find those information in
-        # the nginx error log when clearing the cache. Open a shell and execute:
+        # Depending on your servers setup (e.g. if your server is NATed to the public ip, or your fastcgi
+        # server is running on another ip) you may also need to define the allowed purge source ip's here
+        # If the cache flush (when clearing the caches in TYPO3) fails with the setting "allow 127.0.0.1",
+        # you can find the reasons in the nginx error log. Open a shell and execute:
         #   tail -f /var/log/nginx/error.log"
         # ..and perform a frontend cache flush. You should see errors like:
         #   access forbidden by rule, client: YY.YYY.YYY.YY, server: www.example.com, request: "PURGE / HTTP/1.1"
-        # In that case add the listed ip here
+        # In that case add the printed ip to the list of allowed source addresses:
         #allow YY.YYY.YYY.YY;
         deny all;
 
