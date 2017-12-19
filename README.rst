@@ -16,7 +16,10 @@ Just install the extension, no configuration in TYPO3 needed.
 .. code-block:: bash
 
     typo3/cli_dispath.phpsh extbase extension:install nginx_cache
+    # Fedora (RPM)
     sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
+    # Debian (dpkg)
+    sudo apt install nginx libdigest-md5-file-perl libnginx-mod-http-perl
 
 Afterwards you need to configure NGINX.
 
