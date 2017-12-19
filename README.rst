@@ -78,6 +78,7 @@ And in your php location you need to configure the desired cache behaviour:
 
     location @purge {
         allow 127.0.0.1;
+        allow ::1;
         # Depending on your servers setup (e.g. if your server is NATed to the public ip, or your fastcgi
         # server is running on another ip) you may also need to define the allowed purge source ip's here
         # If the cache flush (when clearing the caches in TYPO3) fails with the setting "allow 127.0.0.1",
