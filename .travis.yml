@@ -50,6 +50,7 @@ notifications:
 
 install:
   #- composer install
+  - sed -i -e 's/\[::1\]:80/[::]:80/' .travis/default-site.tpl.conf
   - .travis/install-nginx.sh
 
 script:
