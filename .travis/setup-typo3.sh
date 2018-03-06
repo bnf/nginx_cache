@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Default to TYPO3 7.6 LTS
-export TYPO3_VERSION=${1:-typo3/cms:^7.6}
+# Default to TYPO3 9.5 LTS
+export TYPO3_VERSION=${1:-typo3/minimal:^9.5}
+export TYPO3_EXTRA_DEPENDENCIES=${2}
 export DBNAME=nginx_cache_travis_test
 [[ -f $HOME/.my.cnf ]] && DBPASS=$(php -r "\$d = @parse_ini_file('$HOME/.my.cnf'); if (isset(\$d['password'])) echo \$d['password'];") || DBPASS=""
 [[ -n "$DBPASS" ]] && export PWARG="--database-user-password=$DBPASS" || export PWARG=""
@@ -12,7 +13,9 @@ rm -rf .Build/
 echo "DROP DATABASE IF EXISTS $DBNAME;" | mysql -u root
 
 rm -f composer.lock
-composer require "$TYPO3_VERSION"
+echo "$TYPO3_VERSION"
+echo "$TYPO3_EXTRA_DEPENDENCIES"
+composer require "$TYPO3_VERSION" $TYPO3_EXTRA_DEPENDENCIES
 #Restore composer.json (was changed by the prior composer require)
 git checkout -- composer.json
 

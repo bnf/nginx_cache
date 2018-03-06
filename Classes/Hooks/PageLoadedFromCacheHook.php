@@ -1,6 +1,7 @@
 <?php
 namespace Qbus\NginxCache\Hooks;
 
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -52,6 +53,15 @@ class PageLoadedFromCacheHook
      */
     protected function isAdminPanelVisible($tsfe)
     {
+        if (version_compare(TYPO3_branch, '9.2', '>=')) {
+            return (
+                ExtensionManagementUtility::isLoaded('adminpanel') &&
+                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedForUser() &&
+                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedInTypoScript() &&
+                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isHiddenForUser() == false
+            );
+        }
+
         return (
             $tsfe->isBackendUserLoggedIn() &&
             $GLOBALS['BE_USER'] instanceof \TYPO3\CMS\Backend\FrontendBackendUserAuthentication &&

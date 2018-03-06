@@ -16,6 +16,7 @@ namespace Qbus\NginxCache\Hooks;
  * GNU General Public License for more details.
  */
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -35,6 +36,18 @@ class SetPageCacheHook
         /* We're only intrested in the page cache */
         if ($frontend->getIdentifier() !== 'cache_pages') {
             return;
+        }
+
+        // TYPO3 v9 added none-page content to cache_pages, ignore those.
+        $ignoredIdentifiers = [
+            'redirects',
+            '-titleTag-',
+            '-metatag-',
+        ];
+        foreach ($ignoredIdentifiers as $ignored) {
+            if (strpos($params['entryIdentifier'], $ignored) !== false) {
+                return;
+            }
         }
 
         $data = $params['variable'];
@@ -80,6 +93,15 @@ class SetPageCacheHook
      */
     protected function isAdminPanelVisible()
     {
+        if (version_compare(TYPO3_branch, '9.2', '>=')) {
+            return (
+                ExtensionManagementUtility::isLoaded('adminpanel') &&
+                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedForUser() &&
+                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedInTypoScript() &&
+                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isHiddenForUser() == false
+            );
+        }
+
         return (
             $this->getTypoScriptFrontendController()->isBackendUserLoggedIn() &&
             $GLOBALS['BE_USER'] instanceof \TYPO3\CMS\Backend\FrontendBackendUserAuthentication &&

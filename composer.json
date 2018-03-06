@@ -17,13 +17,13 @@
     ],
     "license": "GPL-2.0+",
     "require": {
-        "typo3/cms-core": "^7.6.0 || ^8.4.0 || ~9.0.0",
-        "typo3/cms-frontend": "^7.6.0 || ^8.4.0 || ~9.0.0",
-        "typo3/cms-backend": "^7.6.0 || ^8.4.0 || ~9.0.0",
-        "typo3/cms-extbase": "^7.6.0 || ^8.4.0 || ~9.0.0"
+        "typo3/cms-core": "^7.6.13 || ^8.5.0 || ^9.5.0",
+        "typo3/cms-frontend": "^7.6.13 || ^8.5.0 || ^9.5.0",
+        "typo3/cms-backend": "^7.6.13 || ^8.5.0 || ^9.5.0",
+        "typo3/cms-extbase": "^7.6.13 || ^8.5.0 || ^9.5.0"
     },
     "require-dev": {
-        "helhum/typo3-console": "^4.0.1 || 5.x-dev",
+        "helhum/typo3-console": "^4.0.1 || ^5.0",
         "qbus/cache-status": "^1.1.0"
     },
     "autoload": {
@@ -58,6 +58,7 @@
         },
         "typo3/cms": {
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "app-dir": ".Build",
             "web-dir": ".Build/Web"
         },
         "helhum/typo3-console": {

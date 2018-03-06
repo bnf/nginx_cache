@@ -2,6 +2,9 @@ language: php
 
 sudo: false
 
+env:
+  - TYPO3_EXTRA_DEPENDENCIES=
+
 matrix:
   fast_finish: true
   include:
@@ -9,8 +12,6 @@ matrix:
       env: TYPO3_VERSION=typo3/cms:~7.6.0
     - php: 7.0
       env: TYPO3_VERSION=typo3/cms:~7.6.0
-    - php: 7.0
-      env: TYPO3_VERSION=typo3/cms:~8.4.0
     - php: 7.0
       env: TYPO3_VERSION=typo3/cms:~8.5.0
     - php: 7.0
@@ -20,7 +21,9 @@ matrix:
     - php: 7.1
       env: TYPO3_VERSION=typo3/cms:~8.7.0
     - php: 7.2
-      env: TYPO3_VERSION=typo3/minimal:~9.0.0
+      env:
+        - TYPO3_VERSION=typo3/minimal:^9.5
+        - TYPO3_EXTRA_DEPENDENCIES=typo3/cms-adminpanel:^9.5
 
 cache:
   apt: true
@@ -35,7 +38,7 @@ before_install:
   - wget https://raw.github.com/lehmannro/assert.sh/v1.1/assert.sh -O .travis/assert.sh
 
 before_script:
-  - .travis/setup-typo3.sh $TYPO3_VERSION
+  - .travis/setup-typo3.sh $TYPO3_VERSION $TYPO3_EXTRA_DEPENDENCIES
 
 addons:
   apt:

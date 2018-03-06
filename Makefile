@@ -18,7 +18,7 @@ check: .travis/assert-1.1.sh
 	HOST=http://localhost:8088 .travis/run-tests.sh
 
 	PATH=${PHP72_PATH} .travis/install-nginx.sh
-	PATH=${PHP72_PATH} .travis/setup-typo3.sh typo3/minimal:~9.0.0
+	PATH=${PHP72_PATH} .travis/setup-typo3.sh typo3/minimal:^9.5.0 typo3/cms-adminpanel:^9.5.0
 	HOST=http://localhost:8088 PATH=${PHP72_PATH} .travis/run-tests.sh
 
 	pkill -F /tmp/php-fpm.pid
