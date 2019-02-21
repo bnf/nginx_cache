@@ -35,13 +35,13 @@
         "typo3-ter/nginx-cache": "self.version"
     },
     "config": {
-        "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin"
+        "vendor-dir": ".build/vendor",
+        "bin-dir": ".build/bin"
     },
     "scripts": {
         "post-autoload-dump": [
-            "mkdir -p .Build/Web/typo3conf/ext/",
-            "[ -L .Build/Web/typo3conf/ext/nginx_cache ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/nginx_cache"
+            "mkdir -p .build/web/typo3conf/ext/",
+            "[ -L .build/web/typo3conf/ext/nginx_cache ] || ln -snvf ../../../../. .build/web/typo3conf/ext/nginx_cache"
         ]
     },
     "extra": {
@@ -50,8 +50,8 @@
         },
         "typo3/cms": {
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
-            "app-dir": ".Build",
-            "web-dir": ".Build/Web"
+            "app-dir": ".build",
+            "web-dir": ".build/web"
         },
         "helhum/typo3-console": {
            "install-extension-dummy": false

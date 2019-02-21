@@ -9,7 +9,7 @@ export DBNAME=nginx_cache_travis_test
 
 set -ve
 
-rm -rf .Build/
+rm -rf .build/
 echo "DROP DATABASE IF EXISTS $DBNAME;" | mysql -u root
 
 rm -f composer.lock
@@ -19,11 +19,11 @@ composer require "$TYPO3_VERSION" $TYPO3_EXTRA_DEPENDENCIES
 #Restore composer.json (was changed by the prior composer require)
 git checkout -- composer.json
 
-export TYPO3_PATH_WEB=$PWD/.Build/Web
+export TYPO3_PATH_WEB=$PWD/.build/web
 
-.Build/bin/typo3cms install:setup --non-interactive --database-user-name="root" $PWARG --database-host-name="localhost" --database-port="3306" --database-name="nginx_cache_travis_test" --admin-user-name="admin" --admin-password="password" --site-name="Travis Install" --site-setup-type="createsite"
-.Build/bin/typo3cms configuration:set SYS/displayErrors 1
-.Build/bin/typo3cms configuration:set SYS/systemLog error_log
-.Build/bin/typo3cms configuration:set SYS/systemLogLevel 0
-.Build/bin/typo3cms extension:activate cache_status
-.Build/bin/typo3cms extension:activate nginx_cache
+.build/bin/typo3cms install:setup --non-interactive --database-user-name="root" $PWARG --database-host-name="localhost" --database-port="3306" --database-name="nginx_cache_travis_test" --admin-user-name="admin" --admin-password="password" --site-name="Travis Install" --site-setup-type="createsite"
+.build/bin/typo3cms configuration:set SYS/displayErrors 1
+.build/bin/typo3cms configuration:set SYS/systemLog error_log
+.build/bin/typo3cms configuration:set SYS/systemLogLevel 0
+.build/bin/typo3cms extension:activate cache_status
+.build/bin/typo3cms extension:activate nginx_cache
