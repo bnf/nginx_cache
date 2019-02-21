@@ -19,7 +19,7 @@ composer require "$TYPO3_VERSION" $TYPO3_EXTRA_DEPENDENCIES
 #Restore composer.json (was changed by the prior composer require)
 git checkout -- composer.json
 
-export TYPO3_PATH_WEB=$PWD/.build/web
+export TYPO3_PATH_WEB=$PWD/.build/public
 
 .build/bin/typo3cms install:setup --non-interactive --database-user-name="root" $PWARG --database-host-name="localhost" --database-port="3306" --database-name="nginx_cache_travis_test" --admin-user-name="admin" --admin-password="password" --site-name="Travis Install" --site-setup-type="createsite"
 .build/bin/typo3cms configuration:set SYS/displayErrors 1

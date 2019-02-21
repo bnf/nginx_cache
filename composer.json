@@ -40,8 +40,8 @@
     },
     "scripts": {
         "post-autoload-dump": [
-            "mkdir -p .build/web/typo3conf/ext/",
-            "[ -L .build/web/typo3conf/ext/nginx_cache ] || ln -snvf ../../../../. .build/web/typo3conf/ext/nginx_cache"
+            "mkdir -p .build/public/typo3conf/ext/",
+            "[ -L .build/public/typo3conf/ext/nginx_cache ] || ln -snvf ../../../../. .build/public/typo3conf/ext/nginx_cache"
         ]
     },
     "extra": {
@@ -51,7 +51,7 @@
         "typo3/cms": {
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
             "app-dir": ".build",
-            "web-dir": ".build/web"
+            "web-dir": ".build/public"
         },
         "helhum/typo3-console": {
            "install-extension-dummy": false
