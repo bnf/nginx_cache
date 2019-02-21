@@ -26,4 +26,4 @@ check: .travis/assert-1.1.sh
 	rm -rf .travis/nginx/
 
 t3x-pack:
-	git archive -o $(EXTKEY)_`git describe --always --tags`.zip HEAD
+	git archive --worktree-attributes -o $(EXTKEY)_`git describe --always --tags`.zip HEAD
