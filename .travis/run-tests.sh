@@ -10,7 +10,7 @@ cookiefile=/tmp/nginx_cache-backend.cookie
 
 function clear_cache() {
 	cd $ROOT
-	$ROOT/.build/bin/typo3cms cache:flush
+	$ROOT/.build/vendor/bin/typo3cms cache:flush
 	cd -
 	curl -X PURGE $HOST/*
 }
@@ -44,8 +44,8 @@ function login() {
 }
 
 
-$ROOT/.build/bin/typo3cms extension:deactivate rsaauth
-$ROOT/.build/bin/typo3cms configuration:remove BE/loginSecurityLevel --force
+$ROOT/.build/vendor/bin/typo3cms extension:deactivate rsaauth
+$ROOT/.build/vendor/bin/typo3cms configuration:remove BE/loginSecurityLevel --force
 
 
 clear_cache
@@ -69,7 +69,7 @@ assert_raises "test_hit / MISS HIT -I"
 assert_raises "test_hit / MISS HIT"
 assert_raises "test_hit / HIT HIT  -I"
 
-echo "UPDATE sys_template set config = REPLACE(config, 'config.admPanel = 1\n', '')" | $ROOT/.build/bin/typo3cms database:import
+echo "UPDATE sys_template set config = REPLACE(config, 'config.admPanel = 1\n', '')" | $ROOT/.build/vendor/bin/typo3cms database:import
 clear_cache
 login
 assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
@@ -78,7 +78,7 @@ assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
 #test_hit / MISS HIT
 assert_raises "test_hit / HIT HIT"
 
-echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.build/bin/typo3cms database:import
+echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.build/vendor/bin/typo3cms database:import
 clear_cache
 login
 assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
@@ -87,7 +87,7 @@ assert_raises "test_hit / MISS HIT"
 assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
 assert_raises "test_hit / HIT HIT"
 
-#echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.build/bin/typo3cms database:import
+#echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.build/vendor/bin/typo3cms database:import
 clear_cache
 login
 assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"

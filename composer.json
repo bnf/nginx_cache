@@ -35,8 +35,7 @@
         "typo3-ter/nginx-cache": "self.version"
     },
     "config": {
-        "vendor-dir": ".build/vendor",
-        "bin-dir": ".build/bin"
+        "vendor-dir": ".build/vendor"
     },
     "scripts": {
         "post-autoload-dump": [
