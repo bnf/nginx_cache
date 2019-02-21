@@ -32,6 +32,7 @@
         }
     },
     "replace": {
+        "nginx_cache": "self.version",
         "typo3-ter/nginx-cache": "self.version"
     },
     "config": {
