@@ -120,3 +120,72 @@ Advantages over nc_staticfilecache
 - Performant support for starttime/endtime (as long as TYPO3 does not fail to calculate the correct cache time)
   (to be fair: nc_staticfilecache provides that through auto-generated .htaccess files,
   but only for apache, not for nginx)
+
+TYPO3 signals
+*******************
+In some cases you need the possibility to add some custom headers to the http request, given exmaple add "Authentication" header in dev environment or you need to request against the origin server that exists behind a loadbalancer.
+For that reason you can implement a signal in ext_localconf.php
+
+.. code-block:: php
+
+    /** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
+    $signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\SignalSlot\Dispatcher::class);
+
+    $signalSlotDispatcher->connect(
+        \Qbus\NginxCache\Cache\Backend\NginxCacheBackend::class,
+        'purge',
+        \MyNamespace\MyExtension\Signals\MyNginxCacheBackend::class,
+        'purge'
+    );
+
+
+Inside the receiving signal class MyNginxCacheBackend.php to whatever you need
+
+
+.. code-block:: php
+
+    <?php
+    namespace MyNamespace\MyExtension\Signals;
+
+    class MyNginxCacheBackend {
+
+        public function purge($urls) {
+
+	    // normally only one url is called (no loadbalancer), in most cases this setup exists in dev environment with may be a basic auth protection,
+            // so modifify the headers in the options array
+            $basic_auth = 'Basic ' . base64_encode('user:password');
+            $urls['options']['headers']['Authorization'] = $basic_auth;
+
+            $uri = $urls['uri'];
+            // If the main domain is behind a loadbalancer, advice curl to resolve via internal ip adresses
+            // www.myloadbalancingsite.de
+            if (strpos($uri, 'www.myloadbalancingsite.de') !== FALSE) {
+                $urls = array();
+                $urls[] = [
+                  'uri' => $uri,
+                  'options' => [
+		      'headers' => ['Authorization' => $basic_auth],
+                      'curl' => [
+                          CURLOPT_RESOLVE => ['www.myloadbalancingsite.de:443:192.168.111.1']
+                      ]
+                  ]
+                ];
+
+                $urls[] = [
+                     'uri' => $uri,
+                     'options' => [
+                        'headers' => ['Authorization' => $basic_auth],
+                        'curl' => [
+                            CURLOPT_RESOLVE => ['www.myloadbalancingsite.de:443:192.168.111.2']
+                        ]
+                    ]
+                ];
+            }
+
+            $params = [
+                'urls' => $urls
+            ];
+
+            return $params;
+        }
+    }
