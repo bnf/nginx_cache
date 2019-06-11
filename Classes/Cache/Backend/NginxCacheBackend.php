@@ -5,6 +5,7 @@ use TYPO3\CMS\Core\Cache\Backend\TransientBackendInterface;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /**
  * nginx_cache – TYPO3 extension to manage the nginx cache
@@ -116,31 +117,53 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     {
         $content = '';
 
+        $signalSlotDispatcher = GeneralUtility::makeInstance(Dispatcher::class);
+        $additionalOptions = [
+            'urls' => [
+                'uri' => $url,
+                'options' => []
+            ],
+        ];
+
+        // Dispatch Signal to add custom header values to the requests
+        $additionalOptions = $signalSlotDispatcher->dispatch(__CLASS__, 'purge', $additionalOptions);
+        $requestOptions = $additionalOptions['urls'];
+
         /* RequestFactory is available as of TYPO3 8.1 */
         if (class_exists('\\TYPO3\\CMS\\Core\\Http\\RequestFactory')) {
             try {
                 /** @var \TYPO3\CMS\Core\Http\RequestFactory $requestFactory */
                 $requestFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\RequestFactory::class);
-                $response = $requestFactory->request($url, 'PURGE');
 
-                if ($response->getStatusCode() === 200) {
-                    if ($response->getHeader('Content-Type') === 'text/plain') {
-                        $content = $response->getBody()->getContents();
+                foreach ($requestOptions as $obj) {
+                    $requestedUri = $obj['uri'];
+                    $response = $requestFactory->request($requestedUri, 'PURGE', $obj['options']);
+
+                    if ($response->getStatusCode() === 200) {
+                        if ($response->getHeader('Content-Type') === 'text/plain') {
+                            $content = $response->getBody()->getContents();
+                        }
                     }
                 }
             } catch (\GuzzleHttp\Exception\RequestException $e) {
-                error_log("request for url '" . $url . "' failed.");
+                error_log("request for url '" . $requestedUri . "' failed.");
                 error_log($e->getMessage());
                 throw $e;
             }
 
         } else {
             try {
-                $httpRequest = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\HttpRequest::class, $url);
-                $httpRequest->setMethod('PURGE');
-
-                $content = $httpRequest->send()->getBody();
+                /** @var \HttpRequest $httpRequest */
+                $httpRequest = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\HttpRequest::class);
+                foreach ($requestOptions as $obj) {
+                    $requestedUri = $obj['uri'];
+                    $httpRequest->setUrl($requestedUri);
+                    $httpRequest->setMethod('PURGE');
+                    $httpRequest->setHeaders($obj['options']);
+                    $content = $httpRequest->send()->getBody();
+                }
             } catch (\Exception $e) {
+                error_log("request for url '" . $requestedUri . "' failed.");
             }
         }
 
@@ -149,4 +172,5 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
 
         return $content;
     }
+
 }
