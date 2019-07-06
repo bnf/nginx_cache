@@ -25,6 +25,9 @@ matrix:
         - TYPO3_VERSION=typo3/minimal:^9.5
         - TYPO3_EXTRA_DEPENDENCIES=typo3/cms-adminpanel:^9.5
 
+services:
+  - mysql
+
 cache:
   apt: true
   directories:
