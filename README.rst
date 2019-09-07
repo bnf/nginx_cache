@@ -111,6 +111,13 @@ Make sure you have the right timezone set, or the cache may invalidate too late.
 
     date.timezone = "Europe/Berlin"
 
+Clearing the cache in CLI context
+---------------------------------
+Currently, the extension does not support clearing the cache in CLI context. If you want to clear the nginx fastcgi cache (e.g. as part of a deployment process), this can be archived executing the following command:
+
+.. code-block::
+
+    curl -X PURGE https://www.domain.tld/*
 
 Advantages over nc_staticfilecache
 ----------------------------------
