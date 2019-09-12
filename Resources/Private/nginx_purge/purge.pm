@@ -17,7 +17,7 @@ sub handler {
     }
     $r->send_http_header('text/plain');
 
-    if ($r->variable('purge_all')) {
+    if ($r->variable('purge_all') == 1) {
         # Make extra sure we don't delete the entire system (or at least those files writable by nginx)
         # in case of a possible configuration mistake (e.g. if $path is empty),
         # by searching for filenames with 32 chars.
