@@ -93,6 +93,7 @@ And in your php location you need to configure the desired cache behaviour:
         set $purge_path "/var/nginx/cache/TYPO3";
         set $purge_levels "1:2";
         set $purge_cache_key "$scheme://$host$request_uri";
+        set $purge_all 0;
         if ($request_uri = /*) {
             set $purge_all 1;
         }
