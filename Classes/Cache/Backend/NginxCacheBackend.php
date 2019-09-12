@@ -144,9 +144,6 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
             }
         }
 
-        /* Temporary */
-        error_log($content);
-
         return $content;
     }
 }
