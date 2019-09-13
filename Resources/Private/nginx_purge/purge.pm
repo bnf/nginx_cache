@@ -76,6 +76,7 @@ __END__
 #            set $purge_path "/tmp/cache1";
 #            set $purge_levels "1:2";
 #            set $purge_cache_key "http://dev$request_uri";
+#            set $purge_all 0;
 #            if ($request_uri = /*) {
 #                set $purge_all 1;
 #            }
