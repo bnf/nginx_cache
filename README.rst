@@ -71,10 +71,10 @@ And in your php location you need to configure the desired cache behaviour:
         fastcgi_cache_valid 0;
         # Ignore all cache headers, besides X-Accel-Expires
         fastcgi_ignore_headers "Expires" "Cache-Control" "Vary";
-
-        # For debugging only
-        add_header X-Cache  $upstream_cache_status;
     }
+
+    # For debugging only
+    add_header X-Cache  $upstream_cache_status;
 
     location @purge {
         allow 127.0.0.1;
