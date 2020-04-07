@@ -34,7 +34,12 @@ class SetPageCacheHook
     public function set($params, $frontend)
     {
         /* We're only intrested in the page cache */
-        if ($frontend->getIdentifier() !== 'cache_pages') {
+        if (
+            // Cache Identifier as of v10.0
+            $frontend->getIdentifier() !== 'pages' &&
+            // Cache Identifier until v9.5
+            $frontend->getIdentifier() !== 'cache_pages'
+        ) {
             return;
         }
 
@@ -70,7 +75,7 @@ class SetPageCacheHook
             $isLaterCachable &&
             strpos($uri, '?') === false &&
             $this->isAdminPanelVisible() === false &&
-            $this->getEnvironmentService()->getServerRequestMethod() === 'GET'
+            $this->getServerRequestMethod() === 'GET'
         );
 
         if ($cachable) {
@@ -124,6 +129,22 @@ class SetPageCacheHook
     }
 
     /**
+     * @return string
+     */
+    public function getServerRequestMethod()
+    {
+        if (
+            isset($GLOBALS['TYPO3_REQUEST']) &&
+            interface_exists(\Psr\Http\Message\ServerRequestInterface::class, true) &&
+            $GLOBALS['TYPO3_REQUEST'] instanceof \Psr\Http\Message\ServerRequestInterface
+        ) {
+            return $GLOBALS['TYPO3_REQUEST']->getMethod();
+        }
+
+        return isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+    }
+
+    /**
      * @return \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController
      */
     protected function getTypoScriptFrontendController()
@@ -137,13 +158,5 @@ class SetPageCacheHook
     protected function getCacheManager()
     {
         return GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
-    }
-
-    /**
-     * @return \TYPO3\CMS\Extbase\Service\EnvironmentService
-     */
-    protected function getEnvironmentService()
-    {
-        return GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Service\EnvironmentService::class);
     }
 }

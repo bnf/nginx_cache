@@ -22,8 +22,27 @@ git checkout -- composer.json
 export TYPO3_PATH_WEB=$PWD/.build/public
 
 .build/vendor/bin/typo3cms install:setup --non-interactive --database-user-name="root" $PWARG --database-host-name="localhost" --database-port="3306" --database-name="nginx_cache_travis_test" --admin-user-name="admin" --admin-password="password" --site-name="Travis Install" --site-setup-type="createsite"
+mkdir -p $PWD/.build/config/sites/main
+cat > $PWD/.build/config/sites/main/config.yaml <<EOF
+base: '/'
+errorHandling: {  }
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /
+    typo3Language: default
+    locale: en_US.UTF-8
+    iso-639-1: en
+    navigationTitle: English
+    hreflang: en-us
+    direction: ltr
+    flag: us
+rootPageId: 1
+routes: {  }
+EOF
+.build/vendor/bin/typo3cms cache:flush
 .build/vendor/bin/typo3cms configuration:set SYS/displayErrors 1
-.build/vendor/bin/typo3cms configuration:set SYS/systemLog error_log
-.build/vendor/bin/typo3cms configuration:set SYS/systemLogLevel 0
 .build/vendor/bin/typo3cms extension:activate cache_status
 .build/vendor/bin/typo3cms extension:activate nginx_cache

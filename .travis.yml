@@ -24,6 +24,10 @@ matrix:
       env:
         - TYPO3_VERSION=typo3/minimal:^9.5
         - TYPO3_EXTRA_DEPENDENCIES=typo3/cms-adminpanel:^9.5
+    - php: 7.4
+      env:
+        - TYPO3_VERSION=typo3/minimal:^10.4
+        - TYPO3_EXTRA_DEPENDENCIES=typo3/cms-adminpanel:^10.4
 
 services:
   - mysql
