@@ -36,7 +36,7 @@ class PageLoadedFromCacheHook
             strpos($uri, '?') === false &&
             $this->isAdminPanelVisible($tsfe) === false &&
             $this->isFrontendEditingActive() === false &&
-            $this->getEnvironmentService()->getServerRequestMethod() === 'GET'
+            $this->getServerRequestMethod() === 'GET'
         );
 
         if (!$cachable) {
@@ -84,18 +84,26 @@ class PageLoadedFromCacheHook
     }
 
     /**
+     * @return string
+     */
+    public function getServerRequestMethod()
+    {
+        if (
+            isset($GLOBALS['TYPO3_REQUEST']) &&
+            interface_exists(\Psr\Http\Message\ServerRequestInterface::class, true) &&
+            $GLOBALS['TYPO3_REQUEST'] instanceof \Psr\Http\Message\ServerRequestInterface
+        ) {
+            return $GLOBALS['TYPO3_REQUEST']->getMethod();
+        }
+
+        return isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+    }
+
+    /**
      * @return \TYPO3\CMS\Core\Cache\CacheManager;
      */
     protected function getCacheManager()
     {
         return GeneralUtility::makeInstance(\TYPO3\CMS\Core\Cache\CacheManager::class);
-    }
-
-    /**
-     * @return \TYPO3\CMS\Extbase\Service\EnvironmentService
-     */
-    protected function getEnvironmentService()
-    {
-        return GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Service\EnvironmentService::class);
     }
 }
