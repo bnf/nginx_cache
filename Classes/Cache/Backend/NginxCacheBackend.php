@@ -128,8 +128,12 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
                         $content = $response->getBody()->getContents();
                     }
                 }
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                error_log("request for url '" . $url . "' failed with 40x.");
+                error_log($e->getMessage());
+                throw $e;
             } catch (\GuzzleHttp\Exception\RequestException $e) {
-                error_log("request for url '" . $url . "' failed.");
+                error_log("request for url '" . $url . "' failed with 50x.");
                 error_log($e->getMessage());
                 throw $e;
             }
