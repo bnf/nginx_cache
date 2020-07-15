@@ -109,6 +109,17 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     }
 
     /**
+     * Removes all cache entries of this cache which are tagged by any of the specified tags.
+     *
+     * @param string[] $tags List of tags
+     * @return void
+     */
+    public function flushByTags(array $tags)
+    {
+        array_walk($tags, [$this, 'flushByTag']);
+    }
+
+    /**
      * @param  string $url
      * @return string
      */
