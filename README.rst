@@ -16,10 +16,15 @@ Just install the extension, no configuration in TYPO3 needed.
 .. code-block:: bash
 
     vendor/bin/typo3 extension:activate nginx_cache
+
     # Fedora (RPM)
-    sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
+    sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5 perl-File-Find
+
     # Debian (dpkg)
     sudo apt install nginx libnginx-mod-http-perl libdigest-md5-file-perl
+
+    # Fedora <=32 (RPM)
+    sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
 
 Afterwards you need to configure NGINX.
 
