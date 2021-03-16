@@ -45,6 +45,11 @@ class SetPageCacheHook
             return;
         }
 
+        // Ignore TYPO3 v9+ cached 404 page
+        if (in_array('errorPage', $params['tags'], true)) {
+            return;
+        }
+
         // TYPO3 v9 added none-page content to cache_pages, ignore those.
         $ignoredIdentifiers = [
             'redirects',
@@ -67,6 +72,7 @@ class SetPageCacheHook
 
         $isLaterCachable = (
             $temp_content === false &&
+            $tsfe &&
             $tsfe->isStaticCacheble() &&
             $tsfe->doWorkspacePreview() === false &&
             $this->isFrontendEditingActive() === false &&
