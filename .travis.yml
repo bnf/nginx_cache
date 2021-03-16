@@ -40,7 +40,7 @@ cache:
 before_install:
   - echo $TRAVIS_PHP_VERSION
   - if php -i | grep -q xdebug; then phpenv config-rm xdebug.ini; fi
-  - composer self-update
+  - composer self-update --1
   - composer --version
   - wget https://raw.github.com/lehmannro/assert.sh/v1.1/assert.sh -O .travis/assert.sh
 
