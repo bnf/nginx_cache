@@ -11,7 +11,7 @@ and flushes the nginx cache when content changes.
 Configuration
 ------------
 
-Just install the extension, no configuration in TYPO3 needed.
+Just install the extension and the required nginx modules, no configuration in TYPO3 needed.
 
 .. code-block:: bash
 
@@ -26,13 +26,13 @@ Just install the extension, no configuration in TYPO3 needed.
     # Fedora <=32 (RPM)
     sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
 
-Afterwards you need to configure NGINX.
+Now you need to configure NGINX.
 
 NGINX configuration
 *******************
-You'll need to configure NGINX to cache the output of the php call.
-Therefore you need to specify a fastcgi cache path in the http section
-(that is outside your server section):
+You'll need to configure NGINX to cache the output of the php fastcgi call.
+Therefore you need to specify a fastcgi cache path in the :code:`http {}` section
+(it is located outside of your :code:`server {}` section):
 
 .. code-block:: nginx
 
@@ -51,7 +51,7 @@ Therefore you need to specify a fastcgi cache path in the http section
         perl_require purge.pm;
     }
 
-And in your php location you need to configure the desired cache behaviour:
+And in your php location block you need to configure the desired cache behaviour:
 
 .. code-block:: nginx
 
@@ -79,7 +79,7 @@ And in your php location you need to configure the desired cache behaviour:
     }
 
     # For debugging only
-    add_header X-Cache  $upstream_cache_status;
+    add_header X-Cache $upstream_cache_status;
 
     location @purge {
         allow 127.0.0.1;
