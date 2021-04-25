@@ -46,7 +46,8 @@
         "typo3/cms": {
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
             "app-dir": ".build",
-            "web-dir": ".build/public"
+            "web-dir": ".build/public",
+            "extension-key": "nginx_cache"
         },
         "helhum/typo3-console": {
            "install-extension-dummy": false
