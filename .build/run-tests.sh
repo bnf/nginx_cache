@@ -3,6 +3,13 @@
 
 DIR=$(realpath $(dirname "$0"))
 ROOT=$(realpath "$DIR/..")
+if [ -z ${IS_DDEV_PROJECT+x} ]; then
+	HOST=${HOST:-http://localhost}
+else
+	HOST="${DDEV_PRIMARY_URL}"
+fi
+
+make -C ${ROOT} .build/assert-1.1.sh
 
 source $DIR/assert.sh
 
@@ -47,6 +54,7 @@ function login() {
 test -f .build/public/typo3conf/PackageStates.php && $ROOT/.build/vendor/bin/typo3cms extension:deactivate rsaauth || true
 test -f .build/public/typo3conf/PackageStates.php && $ROOT/.build/vendor/bin/typo3cms configuration:remove BE/loginSecurityLevel --force || true
 
+rm -f $cookiefile
 
 clear_cache
 assert_raises "test_hit / MISS MISS"
