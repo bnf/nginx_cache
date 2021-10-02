@@ -20,7 +20,7 @@ fi
 
 set -ve
 
-rm -rf composer.lock .build/public/typo3conf/LocalConfiguration.php .build/public/typo3conf/PackageStates.php .build/vendor/ .build/public/typo3/ .build/public/index.php .build/public/typo3conf/ext/
+rm -rf composer.lock .build/public/typo3conf/LocalConfiguration.php .build/public/typo3conf/PackageStates.php .build/vendor .build/public/typo3 .build/public/index.php .build/public/typo3conf/ext
 
 echo "DROP DATABASE IF EXISTS $DBNAME;" | mysql -u $DBUSER -p$DBPASS --database ''
 
