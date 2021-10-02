@@ -44,8 +44,8 @@ function login() {
 }
 
 
-$ROOT/.build/vendor/bin/typo3cms extension:deactivate rsaauth
-$ROOT/.build/vendor/bin/typo3cms configuration:remove BE/loginSecurityLevel --force
+test -f .build/public/typo3conf/PackageStates.php && $ROOT/.build/vendor/bin/typo3cms extension:deactivate rsaauth || true
+test -f .build/public/typo3conf/PackageStates.php && $ROOT/.build/vendor/bin/typo3cms configuration:remove BE/loginSecurityLevel --force || true
 
 
 clear_cache
