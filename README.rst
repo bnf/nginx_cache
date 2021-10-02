@@ -21,7 +21,7 @@ Just install the extension and the required nginx modules, no configuration in T
     sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5 perl-File-Find
 
     # Debian (dpkg)
-    sudo apt install nginx libnginx-mod-http-perl libdigest-md5-file-perl
+    sudo apt install nginx-extras libnginx-mod-http-perl libdigest-md5-file-perl
 
     # Fedora <=32 (RPM)
     sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
@@ -129,7 +129,7 @@ Advantages over nc_staticfilecache
 ----------------------------------
 
 - Headers can be cached (config.additionalHeaders)
-- We have a testsuite running on travis-ci
+- Acceptance tests
 - Performant support for starttime/endtime (as long as TYPO3 does not fail to calculate the correct cache time)
   (to be fair: nc_staticfilecache provides that through auto-generated .htaccess files,
   but only for apache, not for nginx)
