@@ -1,6 +1,7 @@
 <?php
 namespace Qbus\NginxCache\Hooks;
 
+use TYPO3\CMS\Core\Http\ServerRequestFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -53,19 +54,11 @@ class PageLoadedFromCacheHook
      */
     protected function isAdminPanelVisible($tsfe)
     {
-        if (version_compare(TYPO3_branch, '9.2', '>=')) {
-            return (
-                ExtensionManagementUtility::isLoaded('adminpanel') &&
-                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedForUser() &&
-                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedInTypoScript() &&
-                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isHiddenForUser() == false
-            );
-        }
-
         return (
-            $tsfe->isBackendUserLoggedIn() &&
-            $GLOBALS['BE_USER'] instanceof \TYPO3\CMS\Backend\FrontendBackendUserAuthentication &&
-            $GLOBALS['BE_USER']->isAdminPanelVisible()
+            ExtensionManagementUtility::isLoaded('adminpanel') &&
+            \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedForUser() &&
+            \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedInTypoScript() &&
+            \TYPO3\CMS\Adminpanel\Utility\StateUtility::isHiddenForUser() == false
         );
     }
 
@@ -88,15 +81,9 @@ class PageLoadedFromCacheHook
      */
     public function getServerRequestMethod()
     {
-        if (
-            isset($GLOBALS['TYPO3_REQUEST']) &&
-            interface_exists(\Psr\Http\Message\ServerRequestInterface::class, true) &&
-            $GLOBALS['TYPO3_REQUEST'] instanceof \Psr\Http\Message\ServerRequestInterface
-        ) {
-            return $GLOBALS['TYPO3_REQUEST']->getMethod();
-        }
+        $request = $GLOBALS['TYPO3_REQUEST'] ?? ServerRequestFactory::fromGlobals();
 
-        return isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        return $request->getMethod();
     }
 
     /**

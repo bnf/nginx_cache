@@ -17,12 +17,12 @@
     ],
     "license": "GPL-2.0+",
     "require": {
-        "typo3/cms-core": "^7.6.13 || ^8.5.0 || ^9.5.0 || ^10.4.0 || ^11.0.0",
-        "typo3/cms-frontend": "^7.6.13 || ^8.5.0 || ^9.5.0 || ^10.4.0 || ^11.0.0",
-        "typo3/cms-backend": "^7.6.13 || ^8.5.0 || ^9.5.0 || ^10.4.0 || ^11.0.0"
+        "typo3/cms-core": "^10.4.0 || ^11.0.0",
+        "typo3/cms-frontend": "^10.4.0 || ^11.0.0",
+        "typo3/cms-backend": "^10.4.0 || ^11.0.0"
     },
     "require-dev": {
-        "helhum/typo3-console": "^4.0.1 || ^5.0 || 6.0.0 || ^7.0",
+        "helhum/typo3-console": "6.0.0 || ^7.0",
         "qbus/cache-status": "^1.2.10"
     },
     "autoload": {

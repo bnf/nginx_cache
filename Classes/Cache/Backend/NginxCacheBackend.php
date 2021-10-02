@@ -4,6 +4,7 @@ namespace Qbus\NginxCache\Cache\Backend;
 use TYPO3\CMS\Core\Cache\Backend\TransientBackendInterface;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
+use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -127,36 +128,23 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
     {
         $content = '';
 
-        /* RequestFactory is available as of TYPO3 8.1 */
-        if (class_exists('\\TYPO3\\CMS\\Core\\Http\\RequestFactory')) {
-            try {
-                /** @var \TYPO3\CMS\Core\Http\RequestFactory $requestFactory */
-                $requestFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\RequestFactory::class);
-                $response = $requestFactory->request($url, 'PURGE');
+        try {
+            $requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
+            $response = $requestFactory->request($url, 'PURGE');
 
-                if ($response->getStatusCode() === 200) {
-                    if ($response->getHeader('Content-Type') === 'text/plain') {
-                        $content = $response->getBody()->getContents();
-                    }
+            if ($response->getStatusCode() === 200) {
+                if ($response->getHeader('Content-Type') === 'text/plain') {
+                    $content = $response->getBody()->getContents();
                 }
-            } catch (\GuzzleHttp\Exception\ClientException $e) {
-                error_log("request for url '" . $url . "' failed with 40x.");
-                error_log($e->getMessage());
-                throw $e;
-            } catch (\GuzzleHttp\Exception\RequestException $e) {
-                error_log("request for url '" . $url . "' failed with 50x.");
-                error_log($e->getMessage());
-                throw $e;
             }
-
-        } else {
-            try {
-                $httpRequest = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\HttpRequest::class, $url);
-                $httpRequest->setMethod('PURGE');
-
-                $content = $httpRequest->send()->getBody();
-            } catch (\Exception $e) {
-            }
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            error_log("request for url '" . $url . "' failed with 40x.");
+            error_log($e->getMessage());
+            throw $e;
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            error_log("request for url '" . $url . "' failed with 50x.");
+            error_log($e->getMessage());
+            throw $e;
         }
 
         return $content;
