@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Qbus\NginxCache\Hooks;
 
 /**
@@ -22,7 +24,7 @@ use TYPO3\CMS\Core\Context\Context;
 
 class PageLoadedFromCacheHook
 {
-    public function loadedFromCache(&$params): void
+    public function loadedFromCache(array &$params): void
     {
         /** @var TypoScriptFrontendController $tsfe */
         $tsfe = $params['pObj'];
