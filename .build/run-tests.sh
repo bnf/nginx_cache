@@ -50,10 +50,6 @@ function login() {
 	fi
 }
 
-
-test -f .build/public/typo3conf/PackageStates.php && $ROOT/.build/vendor/bin/typo3cms extension:deactivate rsaauth || true
-test -f .build/public/typo3conf/PackageStates.php && $ROOT/.build/vendor/bin/typo3cms configuration:remove BE/loginSecurityLevel --force || true
-
 rm -f $cookiefile
 
 clear_cache
