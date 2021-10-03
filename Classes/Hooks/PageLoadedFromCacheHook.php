@@ -22,11 +22,14 @@ use TYPO3\CMS\Adminpanel\Utility\StateUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+
 
 class PageLoadedFromCacheHook
 {
+    use RequestAwareTrait;
+
     private FrontendInterface $nginxCache;
 
     public function __construct(FrontendInterface $nginxCache)
@@ -48,42 +51,25 @@ class PageLoadedFromCacheHook
          * $TSFE does the same after this hook (pageLoadedFromCache). So it should be safe.  */
         $tsfe->config = $row['cache_data'];
 
-        $uri = GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL');
-        $context = GeneralUtility::makeInstance(Context::class);
+        $request = $this->getServerRequest();
+        $uri = $this->getUri($request);
 
         $cachable = (
             $tsfe->isStaticCacheble() &&
-            $context->getPropertyFromAspect('workspace', 'isOffline', false) &&
-            !str_contains($uri, '?') &&
+            $tsfe->doWorkspacePreview() === false &&
+            strpos($uri, '?') === false &&
             $this->isAdminPanelVisible() === false &&
-            $this->getServerRequestMethod() === 'GET'
+            $this->isFrontendEditingActive($tsfe) === false &&
+            $request->getMethod() === 'GET'
         );
 
         if (!$cachable) {
             return;
         }
 
+        $context = GeneralUtility::makeInstance(Context::class);
         $lifetime = $row['expires'] - $context->getPropertyFromAspect('date', 'timestamp');
         $tags = $row['tx_nginx_cache_tags'] ?? [];
         $this->nginxCache->set(md5($uri), $uri, $tags, $lifetime);
-    }
-
-    protected function isAdminPanelVisible(): bool
-    {
-        return (
-            ExtensionManagementUtility::isLoaded('adminpanel') &&
-            StateUtility::isActivatedForUser() &&
-            StateUtility::isActivatedInTypoScript() &&
-            StateUtility::isHiddenForUser() === false
-        );
-    }
-
-    public function getServerRequestMethod(): string
-    {
-        if (isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
-            return $GLOBALS['TYPO3_REQUEST']->getMethod();
-        }
-
-        return isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
     }
 }

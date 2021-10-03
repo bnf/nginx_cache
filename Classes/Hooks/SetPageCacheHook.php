@@ -56,13 +56,15 @@ class SetPageCacheHook
         $tags = $params['tags'];
         $lifetime = $params['lifetime'];
 
-        $uri = GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL');
+        $request = $this->getServerRequest();
+        $uri = $this->getUri($request);
+
         $temp_content = (isset($data['temp_content']) && $data['temp_content']);
         $tsfe = $this->getTypoScriptFrontendController();
 
         $isLaterCachable = (
             $temp_content === false &&
-            $tsfe &&
+            $tsfe !== null &&
             $tsfe->isStaticCacheble() &&
             $tsfe->doWorkspacePreview() === false &&
             $this->isFrontendEditingActive($tsfe) === false &&
@@ -73,7 +75,7 @@ class SetPageCacheHook
             $isLaterCachable &&
             !str_contains($uri, '?') &&
             $this->isAdminPanelVisible() === false &&
-            $this->getServerRequestMethod() === 'GET'
+            $request->getMethod() === 'GET'
         );
 
         if ($cachable && $this->container !== null) {
@@ -91,29 +93,5 @@ class SetPageCacheHook
              */
             $params['variable']['tx_nginx_cache_tags'] = $tags;
         }
-    }
-
-    protected function isAdminPanelVisible(): bool
-    {
-        return (
-            ExtensionManagementUtility::isLoaded('adminpanel') &&
-            StateUtility::isActivatedForUser() &&
-            StateUtility::isActivatedInTypoScript() &&
-            StateUtility::isHiddenForUser() === false
-        );
-    }
-
-    public function getServerRequestMethod(): string
-    {
-        if (isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
-            return $GLOBALS['TYPO3_REQUEST']->getMethod();
-        }
-
-        return isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
-    }
-
-    protected function getTypoScriptFrontendController(): ?TypoScriptFrontendController
-    {
-        return isset($GLOBALS['TSFE']) ? $GLOBALS['TSFE'] : null;
     }
 }
