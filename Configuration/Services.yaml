@@ -6,3 +6,17 @@ services:
 
   Qbus\NginxCache\:
     resource: '../Classes/*'
+
+  cache.nginx:
+    public: true
+    class: TYPO3\CMS\Core\Cache\Frontend\FrontendInterface
+    factory: ['@TYPO3\CMS\Core\Cache\CacheManager', 'getCache']
+    arguments: ['nginx']
+
+  Qbus\NginxCache\Hooks\SetPageCacheHook:
+    public: true
+
+  Qbus\NginxCache\Hooks\PageLoadedFromCacheHook:
+    public: true
+    arguments:
+      $nginxCache: '@cache.nginx'

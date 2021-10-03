@@ -7,7 +7,7 @@ use Qbus\NginxCache\Hooks\PageLoadedFromCacheHook;
 use Qbus\NginxCache\Hooks\SetPageCacheHook;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 
-$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['nginx_cache'] = [
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['nginx'] = [
     'frontend' => VariableFrontend::class,
     'backend' => NginxCacheBackend::class,
     'groups' => [

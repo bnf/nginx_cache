@@ -20,10 +20,20 @@ namespace Qbus\NginxCache\Hooks;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Adminpanel\Utility\StateUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class PageLoadedFromCacheHook
 {
+    private FrontendInterface $nginxCache;
+
+    public function __construct(FrontendInterface $nginxCache)
+    {
+        $this->nginxCache = $nginxCache;
+    }
+
     public function loadedFromCache(array &$params): void
     {
         /** @var TypoScriptFrontendController $tsfe */
@@ -54,8 +64,8 @@ class PageLoadedFromCacheHook
         }
 
         $lifetime = $row['expires'] - $context->getPropertyFromAspect('date', 'timestamp');
-        $tags = $row['tx_nginx_cache_tags'];
-        $this->getCacheManager()->getCache('nginx_cache')->set(md5($uri), $uri, $tags, $lifetime);
+        $tags = $row['tx_nginx_cache_tags'] ?? [];
+        $this->nginxCache->set(md5($uri), $uri, $tags, $lifetime);
     }
 
     protected function isAdminPanelVisible(): bool
@@ -75,10 +85,5 @@ class PageLoadedFromCacheHook
         }
 
         return isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
-    }
-
-    protected function getCacheManager(): CacheManager
-    {
-        return GeneralUtility::makeInstance(CacheManager::class);
     }
 }

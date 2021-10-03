@@ -17,16 +17,19 @@ namespace Qbus\NginxCache\Hooks;
  * GNU General Public License for more details.
  */
 
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Adminpanel\Utility\StateUtility;
-use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 class SetPageCacheHook
 {
+    use RequestAwareTrait;
+
+    public function __construct(
+        private ?ContainerInterface $container = null,
+    ) {
+    }
+
     public function set(array $params, FrontendInterface $frontend): void
     {
         /* We're only intrested in the page cache */
@@ -62,6 +65,7 @@ class SetPageCacheHook
             $tsfe &&
             $tsfe->isStaticCacheble() &&
             $tsfe->doWorkspacePreview() === false &&
+            $this->isFrontendEditingActive($tsfe) === false &&
             in_array('nginx_cache_ignore', $tags, true) === false
         );
 
@@ -72,8 +76,10 @@ class SetPageCacheHook
             $this->getServerRequestMethod() === 'GET'
         );
 
-        if ($cachable) {
-            $this->getCacheManager()->getCache('nginx_cache')->set(md5($uri), $uri, $tags, $lifetime);
+        if ($cachable && $this->container !== null) {
+            // @var FrontendInterface $nginxCache
+            $nginxCache = $this->container->get('cache.nginx');
+            $nginxCache->set(md5($uri), $uri, $tags, $lifetime);
         }
 
         if ($isLaterCachable) {
@@ -109,10 +115,5 @@ class SetPageCacheHook
     protected function getTypoScriptFrontendController(): ?TypoScriptFrontendController
     {
         return isset($GLOBALS['TSFE']) ? $GLOBALS['TSFE'] : null;
-    }
-
-    protected function getCacheManager(): CacheManager
-    {
-        return GeneralUtility::makeInstance(CacheManager::class);
     }
 }
