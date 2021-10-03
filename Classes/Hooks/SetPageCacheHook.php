@@ -32,13 +32,19 @@ class SetPageCacheHook
 
     public function set(array $params, FrontendInterface $frontend): void
     {
+        $tags = $params['tags'] ?? [];
+        $entryIdentifier = $params['entryIdentifier'] ?? '';
+        $data = $params['variable'] ?? [];
+        $tags = $params['tags'] ?? [];
+        $lifetime = $params['lifetime'] ?? 0;
+
         /* We're only intrested in the page cache */
         if ($frontend->getIdentifier() !== 'pages') {
             return;
         }
 
         // Ignore cached 404 page
-        if (in_array('errorPage', $params['tags'], true)) {
+        if (in_array('errorPage', $tags, true)) {
             return;
         }
 
@@ -47,14 +53,10 @@ class SetPageCacheHook
             'redirects',
         ];
         foreach ($ignoredIdentifiers as $ignored) {
-            if (str_contains($params['entryIdentifier'], $ignored)) {
+            if (str_contains($entryIdentifier, $ignored)) {
                 return;
             }
         }
-
-        $data = $params['variable'];
-        $tags = $params['tags'];
-        $lifetime = $params['lifetime'];
 
         $request = $this->getServerRequest();
         $uri = $this->getUri($request);

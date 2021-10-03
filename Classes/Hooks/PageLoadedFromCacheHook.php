@@ -37,19 +37,18 @@ class PageLoadedFromCacheHook
         $this->nginxCache = $nginxCache;
     }
 
-    public function loadedFromCache(array &$params): void
+    public function loadedFromCache(array &$params, TypoScriptFrontendController $tsfe): void
     {
-        /** @var TypoScriptFrontendController $tsfe */
-        $tsfe = $params['pObj'];
-        $row = $params['cache_pages_row'];
+        $row = $params['cache_pages_row'] ?? [];
 
-        if (!isset($row['tx_nginx_cache_tags'])) {
+        $nginxCacheTags = $row['tx_nginx_cache_tags'] ?? null;
+        if ($nginxCacheTags === null) {
             return;
         }
 
-        /* We populate config into $TSFE as we do needed it for the isAdminPanelVisisble check.
+        /* We populate config into $TSFE as we do need it for the isAdminPanelVisisble check.
          * $TSFE does the same after this hook (pageLoadedFromCache). So it should be safe.  */
-        $tsfe->config = $row['cache_data'];
+        $tsfe->config = $row['cache_data'] ?? '';
 
         $request = $this->getServerRequest();
         $uri = $this->getUri($request);
@@ -69,7 +68,6 @@ class PageLoadedFromCacheHook
 
         $context = GeneralUtility::makeInstance(Context::class);
         $lifetime = $row['expires'] - $context->getPropertyFromAspect('date', 'timestamp');
-        $tags = $row['tx_nginx_cache_tags'] ?? [];
-        $this->nginxCache->set(md5($uri), $uri, $tags, $lifetime);
+        $this->nginxCache->set(md5($uri), $uri, $nginxCacheTags, $lifetime);
     }
 }
