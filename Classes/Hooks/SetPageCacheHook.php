@@ -34,16 +34,14 @@ class SetPageCacheHook
             return;
         }
 
-        // Ignore TYPO3 cached 404 page
+        // Ignore cached 404 page
         if (in_array('errorPage', $params['tags'], true)) {
             return;
         }
 
-        // TYPO3 v9 added none-page content to cache_pages, ignore those.
+        // EXT:redirects adds none-page content to cache_pages, ignore this.
         $ignoredIdentifiers = [
             'redirects',
-            '-titleTag-',
-            '-metatag-',
         ];
         foreach ($ignoredIdentifiers as $ignored) {
             if (str_contains($params['entryIdentifier'], $ignored)) {
