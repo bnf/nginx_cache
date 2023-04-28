@@ -3,11 +3,7 @@
 
 DIR=$(realpath $(dirname "$0"))
 ROOT=$(realpath "$DIR/..")
-if [ -z ${IS_DDEV_PROJECT+x} ]; then
-	HOST=${HOST:-http://localhost}
-else
-	HOST="${DDEV_PRIMARY_URL}"
-fi
+HOST="${DDEV_PRIMARY_URL}"
 
 make -C ${ROOT} .build/assert-1.1.sh
 
@@ -16,10 +12,8 @@ source $DIR/assert.sh
 cookiefile=/tmp/nginx_cache-backend.cookie
 
 function clear_cache() {
-	cd $ROOT
-	$ROOT/.build/vendor/bin/typo3cms cache:flush
-	cd -
-	curl -X PURGE $HOST/*
+	$ROOT/.build/vendor/bin/typo3 cache:flush
+	curl -X PURGE "${HOST}/*"
 }
 
 function test_hit() {
@@ -27,7 +21,6 @@ function test_hit() {
 	nginx=$2
 	typo3=$3
 	args=$4
-
 	content=$(curl $args -s -o /dev/null -v "${HOST}${url}" 2>&1 | grep -- "< X-\(Cache\|TYPO3-Cache\):" | sed "s/\r//g")
 
 	echo "Testing nginx state for $content"
@@ -40,11 +33,13 @@ function test_hit() {
 function login() {
 	rm -f $cookiefile
 	data=$(curl -s -L -c $cookiefile "${HOST}/typo3/")
-	login_provider=$(echo $data | sed -n "s|.*\\(?loginProvider=[0-9]*\).*|\1|p")
+	login_provider=$(echo $data | sed -n "s|.*\(?loginProvider=[0-9]*\).*|\1|p")
+	request_token=$(echo $data | sed -n 's/.*<input type="hidden" name="__RequestToken" value="\([^"]*\)".*/\1/p')
 
-	code=$(curl -s -w "%{http_code}" -X POST -b $cookiefile -c $cookiefile -e ${HOST}/typo3/ --data "login_status=login&userident=password&username=admin&interface=backend" "${HOST}/typo3/${login_provider}")
+	code=$(curl -s -w '%{http_code}' -X POST -b $cookiefile -c $cookiefile -e ${HOST}/typo3/ --data "login_status=login&userident=Pa%24%24w0rd&username=admin&__RequestToken=${request_token}" "${HOST}/typo3/${login_provider}" )
 
 	if [ "$code" != 303 ]; then
+		echo $code
 		(>&2 echo "Login failed.")
 		exit 1
 	fi
@@ -73,7 +68,7 @@ assert_raises "test_hit / MISS HIT -I"
 assert_raises "test_hit / MISS HIT"
 assert_raises "test_hit / HIT HIT  -I"
 
-echo "UPDATE sys_template set config = REPLACE(config, 'config.admPanel = 1\n', '')" | $ROOT/.build/vendor/bin/typo3cms database:import
+echo "UPDATE sys_template set config = REPLACE(config, 'config.admPanel = 1\n', '')" | mysql db
 clear_cache
 login
 assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
@@ -82,7 +77,7 @@ assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
 #test_hit / MISS HIT
 assert_raises "test_hit / HIT HIT"
 
-echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.build/vendor/bin/typo3cms database:import
+echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | mysql db
 clear_cache
 login
 assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
@@ -91,7 +86,7 @@ assert_raises "test_hit / MISS HIT"
 assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
 assert_raises "test_hit / HIT HIT"
 
-#echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | $ROOT/.build/vendor/bin/typo3cms database:import
+#echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | mysql db
 clear_cache
 login
 assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
