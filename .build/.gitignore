@@ -1,0 +1,6 @@
+/composer.lock
+/config/sites/
+/var
+/public
+/vendor
+/assert*.sh

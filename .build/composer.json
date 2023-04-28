@@ -1,0 +1,26 @@
+{
+    "name": "bnf/nginx-cache-test-site",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../"
+        },
+        {
+            "type": "path",
+            "url": "./packages/*/"
+        }
+    ],
+    "license": "GPL-2.0+",
+    "require": {
+        "bnf/cache-status": "@dev",
+        "bnf/nginx-cache": "@dev",
+        "typo3/cms-adminpanel": "^12.4.0  || dev-main",
+        "typo3/minimal": "^12.4.0 || dev-main"
+    },
+    "config": {
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        }
+    }
+}

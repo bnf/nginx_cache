@@ -1,21 +1,24 @@
 name: nginx-cache
 type: typo3
 docroot: .build/public
-php_version: "7.4"
+php_version: "8.1"
 webserver_type: nginx-fpm
 router_http_port: "80"
 router_https_port: "443"
 xdebug_enabled: false
 additional_hostnames: []
 additional_fqdns: []
-mariadb_version: "10.3"
-mysql_version: ""
+database:
+    type: mariadb
+    version: "10.5"
 nfs_mount_enabled: false
 mutagen_enabled: false
 hooks:
-  post-start:
-  - exec: echo "127.0.0.1 $DDEV_HOSTNAME" | sudo tee -a /etc/hosts
+    post-start:
+        - exec: echo "127.0.0.1 $DDEV_HOSTNAME" | sudo tee -a /etc/hosts
 omit_containers: [dba, ddev-ssh-agent]
 use_dns_when_possible: true
-composer_version: ""
+composer_version: "2"
+composer_root: .build
 web_environment: []
+nodejs_version: "16"
