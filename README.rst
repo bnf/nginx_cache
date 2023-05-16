@@ -138,15 +138,15 @@ Versions
    :widths: 25 25 25 50
    :header-rows: 1
 
-   * - Heading row 1, Version
-     - Heading row 1, TYPO3
-     - Heading row 1, PHP
-     - Heading row 1, Support/Development
-   * - Row 1, 3.x
-     - Row 1, 12.4
-     - Row 1, 8.1 - 8.2
-     - Row 1, Features, Bugfixes, Security Updates
-   * - Row 2, 2.x
-     - Row 2, 7.6 - 11.5
-     - Row 2, 5.6 - 8.1
-     - Row 2, Features, Bugfixes, Security Updates
+   * - Version
+     - TYPO3
+     - PHP
+     - Support/Development
+   * - 3.x
+     - 12.4
+     - 8.1 - 8.2
+     - Features, Bugfixes, Security Updates
+   * - 2.x
+     - 7.6 - 11.5
+     - 5.6 - 8.1
+     - Features, Bugfixes, Security Updates
