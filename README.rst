@@ -135,7 +135,7 @@ Versions
 --------
 
 .. list-table:: Version Matrix
-   :widths: 25 25 25 50
+   :widths: 16 16 16 52
    :header-rows: 1
 
    * - Version
