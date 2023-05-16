@@ -15,6 +15,9 @@ namespace Qbus\NginxCache\Hooks;
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
+
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Adminpanel\Utility\StateUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -29,23 +32,14 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
  */
 class SetPageCacheHook
 {
-    /**
-     * @param array             $params
-     * @param FrontendInterface $frontend
-     */
-    public function set($params, $frontend)
+    public function set(array $params, FrontendInterface $frontend): void
     {
         /* We're only intrested in the page cache */
-        if (
-            // Cache Identifier as of v10.0
-            $frontend->getIdentifier() !== 'pages' &&
-            // Cache Identifier until v9.5
-            $frontend->getIdentifier() !== 'cache_pages'
-        ) {
+        if ($frontend->getIdentifier() !== 'pages') {
             return;
         }
 
-        // Ignore TYPO3 v9+ cached 404 page
+        // Ignore TYPO3 cached 404 page
         if (in_array('errorPage', $params['tags'], true)) {
             return;
         }
@@ -57,7 +51,7 @@ class SetPageCacheHook
             '-metatag-',
         ];
         foreach ($ignoredIdentifiers as $ignored) {
-            if (strpos($params['entryIdentifier'], $ignored) !== false) {
+            if (str_contains($params['entryIdentifier'], $ignored)) {
                 return;
             }
         }
@@ -75,13 +69,12 @@ class SetPageCacheHook
             $tsfe &&
             $tsfe->isStaticCacheble() &&
             $tsfe->doWorkspacePreview() === false &&
-            $this->isFrontendEditingActive() === false &&
-            in_array('nginx_cache_ignore', $tags) === false
+            in_array('nginx_cache_ignore', $tags, true) === false
         );
 
         $cachable = (
             $isLaterCachable &&
-            strpos($uri, '?') === false &&
+            !str_contains($uri, '?') &&
             $this->isAdminPanelVisible() === false &&
             $this->getServerRequestMethod() === 'GET'
         );
@@ -101,69 +94,31 @@ class SetPageCacheHook
         }
     }
 
-    /**
-     * @return bool
-     */
-    protected function isAdminPanelVisible()
+    protected function isAdminPanelVisible(): bool
     {
-        if (version_compare(TYPO3_branch, '9.2', '>=')) {
-            return (
-                ExtensionManagementUtility::isLoaded('adminpanel') &&
-                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedForUser() &&
-                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isActivatedInTypoScript() &&
-                \TYPO3\CMS\Adminpanel\Utility\StateUtility::isHiddenForUser() == false
-            );
-        }
-
         return (
-            $this->getTypoScriptFrontendController()->isBackendUserLoggedIn() &&
-            $GLOBALS['BE_USER'] instanceof \TYPO3\CMS\Backend\FrontendBackendUserAuthentication &&
-            $GLOBALS['BE_USER']->isAdminPanelVisible()
+            ExtensionManagementUtility::isLoaded('adminpanel') &&
+            StateUtility::isActivatedForUser() &&
+            StateUtility::isActivatedInTypoScript() &&
+            StateUtility::isHiddenForUser() === false
         );
     }
 
-    /**
-     * @return bool
-     */
-    protected function isFrontendEditingActive()
+    public function getServerRequestMethod(): string
     {
-        return (
-            /* Note: we do not use $GLOBALS['BE_USER']->isFrontendEditingActive() as that checks
-             * additional for adminPanel->isAdminModuleEnabled('edit'), but that has no influence
-             * on cache clearing. */
-            $GLOBALS['TSFE']->displayEditIcons == 1 ||
-            $GLOBALS['TSFE']->displayFieldEditIcons == 1
-        );
-    }
-
-    /**
-     * @return string
-     */
-    public function getServerRequestMethod()
-    {
-        if (
-            isset($GLOBALS['TYPO3_REQUEST']) &&
-            interface_exists(\Psr\Http\Message\ServerRequestInterface::class, true) &&
-            $GLOBALS['TYPO3_REQUEST'] instanceof \Psr\Http\Message\ServerRequestInterface
-        ) {
+        if (isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
             return $GLOBALS['TYPO3_REQUEST']->getMethod();
         }
 
         return isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
     }
 
-    /**
-     * @return TypoScriptFrontendController|null
-     */
-    protected function getTypoScriptFrontendController()
+    protected function getTypoScriptFrontendController(): ?TypoScriptFrontendController
     {
         return isset($GLOBALS['TSFE']) ? $GLOBALS['TSFE'] : null;
     }
 
-    /**
-     * @return CacheManager
-     */
-    protected function getCacheManager()
+    protected function getCacheManager(): CacheManager
     {
         return GeneralUtility::makeInstance(CacheManager::class);
     }
