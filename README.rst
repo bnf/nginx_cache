@@ -134,7 +134,7 @@ Advantages over nc_staticfilecache
 Versions
 --------
 
-.. list-table:: Title
+.. list-table:: Version Matrix
    :widths: 25 25 25 50
    :header-rows: 1
 
