@@ -130,3 +130,11 @@ Advantages over nc_staticfilecache
 - Performant support for starttime/endtime (as long as TYPO3 does not fail to calculate the correct cache time)
   (to be fair: nc_staticfilecache provides that through auto-generated .htaccess files,
   but only for apache, not for nginx)
+
+Versions
+--------
+
+| Version | TYPO3      | PHP        | Support/Development                  |
+|---------|------------|------------|--------------------------------------|
+| 3.x     | 12.4       | 8.1 - 8.2  | Features, Bugfixes, Security Updates |
+| 2.x     | 7.6 - 11.5 | 5.6 - 8.1  | Features, Bugfixes, Security Updates |
