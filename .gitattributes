@@ -5,3 +5,4 @@
 /Makefile export-ignore
 /.build/ export-ignore
 /.ddev/ export-ignore
+/.github/ export-ignore

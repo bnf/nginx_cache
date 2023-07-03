@@ -1,9 +1,10 @@
 <?php
-namespace Qbus\NginxCache\Hooks;
+declare(strict_types=1);
+
+namespace Bnf\NginxCache\Hooks;
 
 /**
- * nginx_cache – TYPO3 extension to manage the nginx cache
- * Copyright (C) 2016 Qbus GmbH
+ * nginx_cache – NGINX Cache Manager for TYPO3
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,59 +17,59 @@ namespace Qbus\NginxCache\Hooks;
  * GNU General Public License for more details.
  */
 
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use TYPO3\CMS\Adminpanel\Utility\StateUtility;
-use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
-/**
- * SetPageCacheHook
- *
- * @author Benjamin Franzke <bfr@qbus.de>
- * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 2 or later
- */
 class SetPageCacheHook
 {
+    use RequestAwareTrait;
+
+    public function __construct(
+        private ?ContainerInterface $container = null,
+    ) {
+    }
+
     public function set(array $params, FrontendInterface $frontend): void
     {
+        $tags = $params['tags'] ?? [];
+        $entryIdentifier = $params['entryIdentifier'] ?? '';
+        $data = $params['variable'] ?? [];
+        $tags = $params['tags'] ?? [];
+        $lifetime = $params['lifetime'] ?? 0;
+
         /* We're only intrested in the page cache */
         if ($frontend->getIdentifier() !== 'pages') {
             return;
         }
 
-        // Ignore TYPO3 cached 404 page
-        if (in_array('errorPage', $params['tags'], true)) {
+        // Ignore cached 404 page
+        if (in_array('errorPage', $tags, true)) {
             return;
         }
 
-        // TYPO3 v9 added none-page content to cache_pages, ignore those.
+        // EXT:redirects adds none-page content to cache_pages, ignore this.
         $ignoredIdentifiers = [
             'redirects',
-            '-titleTag-',
-            '-metatag-',
         ];
         foreach ($ignoredIdentifiers as $ignored) {
-            if (str_contains($params['entryIdentifier'], $ignored)) {
+            if (str_contains($entryIdentifier, $ignored)) {
                 return;
             }
         }
 
-        $data = $params['variable'];
-        $tags = $params['tags'];
-        $lifetime = $params['lifetime'];
+        $request = $this->getServerRequest();
+        $uri = $this->getUri($request);
 
-        $uri = GeneralUtility::getIndpEnv('TYPO3_REQUEST_URL');
         $temp_content = (isset($data['temp_content']) && $data['temp_content']);
         $tsfe = $this->getTypoScriptFrontendController();
 
         $isLaterCachable = (
             $temp_content === false &&
-            $tsfe &&
+            $tsfe !== null &&
             $tsfe->isStaticCacheble() &&
             $tsfe->doWorkspacePreview() === false &&
+            $this->isFrontendEditingActive($tsfe) === false &&
             in_array('nginx_cache_ignore', $tags, true) === false
         );
 
@@ -76,11 +77,13 @@ class SetPageCacheHook
             $isLaterCachable &&
             !str_contains($uri, '?') &&
             $this->isAdminPanelVisible() === false &&
-            $this->getServerRequestMethod() === 'GET'
+            $request->getMethod() === 'GET'
         );
 
-        if ($cachable) {
-            $this->getCacheManager()->getCache('nginx_cache')->set(md5($uri), $uri, $tags, $lifetime);
+        if ($cachable && $this->container !== null) {
+            // @var FrontendInterface $nginxCache
+            $nginxCache = $this->container->get('cache.nginx');
+            $nginxCache->set(md5($uri), $uri, $tags, $lifetime);
         }
 
         if ($isLaterCachable) {
@@ -92,34 +95,5 @@ class SetPageCacheHook
              */
             $params['variable']['tx_nginx_cache_tags'] = $tags;
         }
-    }
-
-    protected function isAdminPanelVisible(): bool
-    {
-        return (
-            ExtensionManagementUtility::isLoaded('adminpanel') &&
-            StateUtility::isActivatedForUser() &&
-            StateUtility::isActivatedInTypoScript() &&
-            StateUtility::isHiddenForUser() === false
-        );
-    }
-
-    public function getServerRequestMethod(): string
-    {
-        if (isset($GLOBALS['TYPO3_REQUEST']) && $GLOBALS['TYPO3_REQUEST'] instanceof ServerRequestInterface) {
-            return $GLOBALS['TYPO3_REQUEST']->getMethod();
-        }
-
-        return isset($_SERVER['REQUEST_METHOD']) && is_string($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
-    }
-
-    protected function getTypoScriptFrontendController(): ?TypoScriptFrontendController
-    {
-        return isset($GLOBALS['TSFE']) ? $GLOBALS['TSFE'] : null;
-    }
-
-    protected function getCacheManager(): CacheManager
-    {
-        return GeneralUtility::makeInstance(CacheManager::class);
     }
 }

@@ -1,17 +1,10 @@
 <?php
-namespace Qbus\NginxCache\Cache\Backend;
+declare(strict_types=1);
 
-use TYPO3\CMS\Core\Cache\Backend\TransientBackendInterface;
-use TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend;
-use TYPO3\CMS\Core\Cache\Exception;
-use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
-use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Http\RequestFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+namespace Bnf\NginxCache\Cache\Backend;
 
 /**
- * nginx_cache – TYPO3 extension to manage the nginx cache
- * Copyright (C) 2016 Qbus GmbH
+ * nginx_cache – NGINX Cache Manager for TYPO3
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,12 +17,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * GNU General Public License for more details.
  */
 
-/**
- * NginxCacheBackend
- *
- * @author Benjamin Franzke <bfr@qbus.de>
- * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 2 or later
- */
+use TYPO3\CMS\Core\Cache\Backend\TransientBackendInterface;
+use TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend;
+use TYPO3\CMS\Core\Cache\Exception;
+use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\RequestFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 class NginxCacheBackend extends Typo3DatabaseBackend implements TransientBackendInterface
 {
     /**
