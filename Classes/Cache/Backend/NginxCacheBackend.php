@@ -2,8 +2,11 @@
 namespace Qbus\NginxCache\Cache\Backend;
 
 use TYPO3\CMS\Core\Cache\Backend\TransientBackendInterface;
+use TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -27,15 +30,15 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @author Benjamin Franzke <bfr@qbus.de>
  * @license http://www.gnu.org/licenses/gpl.html GNU General Public License, version 2 or later
  */
-class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend implements TransientBackendInterface
+class NginxCacheBackend extends Typo3DatabaseBackend implements TransientBackendInterface
 {
     /**
      * Saves data in a cache file.
      *
-     * @param  string               $entryIdentifier An identifier for this specific cache entry
-     * @param  string               $data            The data to be stored
-     * @param  array                $tags            Tags to associate with this cache entry
-     * @param  int                  $lifetime        Lifetime of this cache entry in seconds. If NULL is specified, the default lifetime is used. "0" means unlimited liftime.
+     * @param string $entryIdentifier An identifier for this specific cache entry
+     * @param string $data The data to be stored
+     * @param array $tags Tags to associate with this cache entry
+     * @param int $lifetime Lifetime of this cache entry in seconds. If NULL is specified, the default lifetime is used. "0" means unlimited liftime.
      * @return void
      * @throws Exception            if no cache frontend has been set.
      * @throws InvalidDataException if the data to be stored is not a string.
@@ -84,7 +87,7 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
         /* FIXME: this won't work for cli requests. We could try do derive the site_url from
          * existing cache entries (using findIdentifierByTag?).
          * Or introduce a configure option to set the flushAll URL. */
-        if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI) {
+        if (Environment::isCli()) {
             return;
         }
 
@@ -119,44 +122,35 @@ class NginxCacheBackend extends \TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBacke
         array_walk($tags, [$this, 'flushByTag']);
     }
 
-    /**
-     * @param  string $url
-     * @return string
-     */
-    protected function purge($url)
+    protected function purge(string $url): string
     {
         $content = '';
 
-        /* RequestFactory is available as of TYPO3 8.1 */
-        if (class_exists('\\TYPO3\\CMS\\Core\\Http\\RequestFactory')) {
-            try {
-                /** @var \TYPO3\CMS\Core\Http\RequestFactory $requestFactory */
-                $requestFactory = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\RequestFactory::class);
-                $response = $requestFactory->request($url, 'PURGE');
+        try {
+            $requestOptions = [
+                'timeout' => 5,
+                'connect_timeout' => 5,
+            ];
+            $requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
+            $response = $requestFactory->request($url, 'PURGE', $requestOptions);
 
-                if ($response->getStatusCode() === 200) {
-                    if ($response->getHeader('Content-Type') === 'text/plain') {
-                        $content = $response->getBody()->getContents();
-                    }
+            if ($response->getStatusCode() === 200) {
+                if ($response->getHeader('Content-Type') === 'text/plain') {
+                    $content = $response->getBody()->getContents();
                 }
-            } catch (\GuzzleHttp\Exception\ClientException $e) {
-                error_log("request for url '" . $url . "' failed with 40x.");
-                error_log($e->getMessage());
-                throw $e;
-            } catch (\GuzzleHttp\Exception\RequestException $e) {
-                error_log("request for url '" . $url . "' failed with 50x.");
-                error_log($e->getMessage());
-                throw $e;
             }
-
-        } else {
-            try {
-                $httpRequest = GeneralUtility::makeInstance(\TYPO3\CMS\Core\Http\HttpRequest::class, $url);
-                $httpRequest->setMethod('PURGE');
-
-                $content = $httpRequest->send()->getBody();
-            } catch (\Exception $e) {
-            }
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            error_log("request for url '" . $url . "' failed with 40x.");
+            error_log($e->getMessage());
+            throw $e;
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            error_log("request for url '" . $url . "' failed with 50x.");
+            error_log($e->getMessage());
+            throw $e;
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            error_log("request for url '" . $url . "' timed out after 5 seconds");
+            error_log($e->getMessage());
+            throw $e;
         }
 
         return $content;

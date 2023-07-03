@@ -40,7 +40,7 @@ Therefore you need to specify a fastcgi cache path in the :code:`http {}` sectio
         # TYPO3 security issues) to inject a new purge.pm, and thus get access to e.g.
         # your https keys (That means on EXT:nginx_cache major update you need to check
         # for changes. Promise: We'll do that for major upgrades only).
-	# So use:
+        # So use:
         #perl_modules /etc/nginx/perl/lib;
         # ..instead of:
         perl_modules /path/to/your/webroot/typo3conf/ext/nginx_cache/Resources/Private/nginx_purge;
@@ -130,3 +130,23 @@ Advantages over nc_staticfilecache
 - Performant support for starttime/endtime (as long as TYPO3 does not fail to calculate the correct cache time)
   (to be fair: nc_staticfilecache provides that through auto-generated .htaccess files,
   but only for apache, not for nginx)
+
+Versions
+--------
+
+.. list-table:: Version Matrix
+   :widths: 16 16 16 52
+   :header-rows: 1
+
+   * - Version
+     - TYPO3
+     - PHP
+     - Support/Development
+   * - 3.x
+     - 12.4
+     - 8.1 - 8.2
+     - Features, Bugfixes, Security Updates
+   * - 2.x
+     - 7.6 - 11.5
+     - 5.6 - 8.1
+     - Features, Bugfixes, Security Updates
