@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Qbus\NginxCache\Hooks;
+namespace Bnf\NginxCache\Hooks;
 
 /**
  * nginx_cache – NGINX Cache Manager for TYPO3

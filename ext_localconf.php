@@ -2,9 +2,9 @@
 
 defined('TYPO3') or die();
 
-use Qbus\NginxCache\Cache\Backend\NginxCacheBackend;
-use Qbus\NginxCache\Hooks\PageLoadedFromCacheHook;
-use Qbus\NginxCache\Hooks\SetPageCacheHook;
+use Bnf\NginxCache\Cache\Backend\NginxCacheBackend;
+use Bnf\NginxCache\Hooks\PageLoadedFromCacheHook;
+use Bnf\NginxCache\Hooks\SetPageCacheHook;
 use TYPO3\CMS\Core\Cache\Frontend\VariableFrontend;
 
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['nginx'] = [

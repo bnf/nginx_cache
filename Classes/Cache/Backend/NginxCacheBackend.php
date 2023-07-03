@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Qbus\NginxCache\Cache\Backend;
+namespace Bnf\NginxCache\Cache\Backend;
 
 /**
  * nginx_cache – NGINX Cache Manager for TYPO3

@@ -4,7 +4,7 @@ services:
     autoconfigure: true
     public: false
 
-  Qbus\NginxCache\:
+  Bnf\NginxCache\:
     resource: '../Classes/*'
 
   cache.nginx:
@@ -13,10 +13,10 @@ services:
     factory: ['@TYPO3\CMS\Core\Cache\CacheManager', 'getCache']
     arguments: ['nginx']
 
-  Qbus\NginxCache\Hooks\SetPageCacheHook:
+  Bnf\NginxCache\Hooks\SetPageCacheHook:
     public: true
 
-  Qbus\NginxCache\Hooks\PageLoadedFromCacheHook:
+  Bnf\NginxCache\Hooks\PageLoadedFromCacheHook:
     public: true
     arguments:
       $nginxCache: '@cache.nginx'
