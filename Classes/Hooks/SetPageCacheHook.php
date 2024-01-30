@@ -20,6 +20,8 @@ namespace Bnf\NginxCache\Hooks;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SetPageCacheHook
 {
@@ -64,11 +66,12 @@ class SetPageCacheHook
         $temp_content = (isset($data['temp_content']) && $data['temp_content']);
         $tsfe = $this->getTypoScriptFrontendController();
 
+        $context = GeneralUtility::makeInstance(Context::class);
         $isLaterCachable = (
             $temp_content === false &&
             $tsfe !== null &&
-            $tsfe->isStaticCacheble() &&
-            $tsfe->doWorkspacePreview() === false &&
+            $tsfe->isStaticCacheble($request) &&
+            $context->getPropertyFromAspect('workspace', 'isOffline', false) === false &&
             $this->isFrontendEditingActive($tsfe) === false &&
             in_array('nginx_cache_ignore', $tags, true) === false
         );

@@ -53,9 +53,10 @@ class PageLoadedFromCacheHook
         $request = $this->getServerRequest();
         $uri = $this->getUri($request);
 
+        $context = GeneralUtility::makeInstance(Context::class);
         $cachable = (
-            $tsfe->isStaticCacheble() &&
-            $tsfe->doWorkspacePreview() === false &&
+            $tsfe->isStaticCacheble($request) &&
+            $context->getPropertyFromAspect('workspace', 'isOffline', false) === false &&
             strpos($uri, '?') === false &&
             $this->isAdminPanelVisible() === false &&
             $this->isFrontendEditingActive($tsfe) === false &&
@@ -66,7 +67,6 @@ class PageLoadedFromCacheHook
             return;
         }
 
-        $context = GeneralUtility::makeInstance(Context::class);
         $lifetime = $row['expires'] - $context->getPropertyFromAspect('date', 'timestamp');
         $this->nginxCache->set(md5($uri), $uri, $nginxCacheTags, $lifetime);
     }
