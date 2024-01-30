@@ -21,7 +21,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Adminpanel\Utility\StateUtility;
 use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequestFactory;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 trait RequestAwareTrait
@@ -40,12 +42,13 @@ trait RequestAwareTrait
         return $request->getAttribute('frontend.controller', $GLOBALS['TSFE'] ?? null);
     }
 
-    protected function isAdminPanelVisible(): bool
+    protected function isAdminPanelVisible(?FrontendTypoScript $frontendTypoScript = null): bool
     {
+        $frontendTypoScript ??= $this->getServerRequest()->getAttribute('frontend.typoscript');
         return (
             ExtensionManagementUtility::isLoaded('adminpanel') &&
             StateUtility::isActivatedForUser() &&
-            StateUtility::isActivatedInTypoScript() &&
+            ((new Typo3Version())->getMajorVersion() <= 12 ? StateUtility::isActivatedInTypoScript() : ($frontendTypoScript->getConfigArray()['admPanel'] ?? false)) &&
             StateUtility::isHiddenForUser() == false
         );
     }

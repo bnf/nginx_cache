@@ -3,19 +3,19 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../"
+            "url": "../../"
         },
         {
             "type": "path",
-            "url": "./packages/*/"
+            "url": "../packages/*/"
         }
     ],
     "license": "GPL-2.0+",
     "require": {
         "bnf/cache-status": "@dev",
         "bnf/nginx-cache": "@dev",
-        "typo3/cms-adminpanel": "^12.4.0  || dev-main",
-        "typo3/minimal": "^12.4.0 || dev-main"
+        "typo3/cms-adminpanel": "^12.4",
+        "typo3/minimal": "^12.4"
     },
     "config": {
         "allow-plugins": {

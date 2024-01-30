@@ -2,14 +2,20 @@
 
 set -ve
 
-rm -rf \
-       	.build/config/sites/ \
-	.build/config/system/settings.php \
-	.build/composer.lock \
-       	.build/public/ \
-	.build/vendor/
+prefix=${1}
 
 cd .build/
+ln -snf ${1}/public public
+
+cd ${prefix}
+
+rm -rf \
+    config/sites/ \
+    config/system/settings.php \
+    composer.lock \
+    public/ \
+    vendor/
+
 composer install
 
 TYPO3_DB_USERNAME=db \
@@ -18,6 +24,7 @@ TYPO3_DB_HOST=db \
 TYPO3_DB_DBNAME=db \
 TYPO3_DB_PASSWORD=db \
 TYPO3_DB_DRIVER=mysqli \
+TYPO3_SERVER_TYPE=other \
 TYPO3_SETUP_ADMIN_EMAIL=admin@example.com \
 TYPO3_SETUP_ADMIN_USERNAME=admin \
 TYPO3_SETUP_ADMIN_PASSWORD='Pa$$w0rd' \

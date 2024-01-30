@@ -5,20 +5,27 @@ EXTKEY = $(notdir $(shell pwd))
 	ln -snf assert-1.1.sh .build/assert.sh
 
 check:
-	$(MAKE) ddev-12
-
-
-ddev-12: .build/assert-1.1.sh
 	ddev stop --remove-data --omit-snapshot
 	ddev start
-	ddev exec .build/setup-typo3.sh typo3/cms-core:^12.4.0
-	ddev exec .build/run-tests.sh
+	$(MAKE) check-12
+	ddev restart
+	$(MAKE) check-13
 
-ddev-main: .build/assert-1.1.sh
-	ddev stop --remove-data --omit-snapshot
-	ddev start
-	ddev exec .build/setup-typo3.sh typo3/cms-core:dev-main@dev typo3/cms-frontend:dev-main@dev typo3/cms-backend:dev-main@dev
-	ddev exec .build/run-tests.sh
+
+check-12: .build/assert-1.1.sh
+	ddev clean-db
+	ddev exec .build/setup-typo3.sh v12
+	ddev exec .build/run-tests.sh v12
+
+check-13: .build/assert-1.1.sh
+	ddev clean-db
+	ddev exec .build/setup-typo3.sh v13
+	ddev exec .build/run-tests.sh v13
+
+check-main: .build/assert-1.1.sh
+	ddev clean-db
+	ddev exec .build/setup-typo3.sh v13-dev
+	ddev exec .build/run-tests.sh v13-dev
 
 t3x-pack:
 	git archive --worktree-attributes -o $(EXTKEY)_`git describe --always --tags`.zip HEAD

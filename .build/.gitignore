@@ -1,6 +1,8 @@
-/composer.lock
-/config/sites/
-/var
-/public
-/vendor
+v*/composer.lock
+v*/config/system/settings.php
+v*/config/sites/
+v*/var
+v*/public
+v*/vendor
 /assert*.sh
+/public

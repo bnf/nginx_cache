@@ -18,5 +18,8 @@ services:
 
   Bnf\NginxCache\Hooks\PageLoadedFromCacheHook:
     public: true
+    tags:
+      - name: event.listener
+        method: handleEvent
     arguments:
       $nginxCache: '@cache.nginx'

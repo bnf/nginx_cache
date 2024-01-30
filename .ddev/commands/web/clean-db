@@ -1,0 +1,3 @@
+#!/bin/sh
+mysql -Bs --execute='drop database if exists db' ''
+mysql -Bs --execute='create database db' ''

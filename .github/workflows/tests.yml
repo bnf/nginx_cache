@@ -6,4 +6,4 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: ddev/github-action-setup-ddev@v1
-      - run: make ddev-12
+      - run: make check

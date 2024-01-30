@@ -1,0 +1,38 @@
+{
+    "name": "bnf/nginx-cache-test-site",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../"
+        },
+        {
+            "type": "path",
+            "url": "../packages/*/"
+        }
+    ],
+    "license": "GPL-2.0+",
+    "require": {
+        "bnf/cache-status": "@dev",
+        "bnf/nginx-cache": "@dev",
+        "cweagans/composer-patches": "^1.7",
+        "doctrine/dbal": "4.0.0-RC2@rc",
+        "typo3/cms-adminpanel": "~13.0.0",
+        "typo3/cms-install": "~13.0.0",
+        "typo3/minimal": "~13.0.0"
+    },
+    "extra": {
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "typo3/cms-install": {
+                "[BUGFIX] Cast database port to int in setup command": "patches/f5296972ae7-install.patch"
+            }
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true,
+            "cweagans/composer-patches": true
+        }
+    }
+}

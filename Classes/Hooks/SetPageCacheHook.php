@@ -90,13 +90,12 @@ class SetPageCacheHook
         }
 
         if ($isLaterCachable) {
-            /* We store these values here, in case we ever loose the cache in nginx.
+            /* We store this marker here, in case we ever loose the cache in nginx.
              * In that case TYPO3 is requested and retrieves the cached content from cache_pages.
-             * For that case we install a PageLoadedFromCache Hook, that uses these data
-             * to decide a) whether data should be cached and b) which tags have to be assigned.
-             * (As the tags are not available in that hook)
+             * For that case we install a PageLoadedFromCache hook(v12)/event(13.0), that uses these data
+             * to decide a) whether data should be cached
              */
-            $params['variable']['tx_nginx_cache_tags'] = $tags;
+            $params['variable']['cacheTags'][] = 'nginx-cache-later-cacheable';
         }
     }
 }

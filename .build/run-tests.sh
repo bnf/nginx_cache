@@ -4,6 +4,7 @@
 DIR=$(realpath $(dirname "$0"))
 ROOT=$(realpath "$DIR/..")
 HOST="${DDEV_PRIMARY_URL}"
+PREFIX="${1:-v12}"
 
 make -C ${ROOT} .build/assert-1.1.sh
 
@@ -12,7 +13,7 @@ source $DIR/assert.sh
 cookiefile=/tmp/nginx_cache-backend.cookie
 
 function clear_cache() {
-	$ROOT/.build/vendor/bin/typo3 cache:flush
+	$ROOT/.build/${PREFIX}/vendor/bin/typo3 cache:flush
 	curl -X PURGE "${HOST}/*"
 }
 

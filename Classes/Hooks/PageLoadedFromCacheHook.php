@@ -23,8 +23,8 @@ use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\Event\AfterTypoScriptDeterminedEvent;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-
 
 class PageLoadedFromCacheHook
 {
@@ -37,12 +37,56 @@ class PageLoadedFromCacheHook
         $this->nginxCache = $nginxCache;
     }
 
+    /**
+     * v13.0 event
+     */
+    public function handleEvent(AfterTypoScriptDeterminedEvent $event): void
+    {
+        $tsfe = $this->getTypoScriptFrontendController();
+        // @todo  $tsfe->pageContentWasLoadedFromCache is protected and $tsfe->isGeneratePage() is internal
+        if ($tsfe->isGeneratePage()) {
+            return;
+        }
+
+        $pageCacheTags = $tsfe->getPageCacheTags();
+        if (!in_array('nginx-cache-later-cacheable', $pageCacheTags, true)) {
+            return;
+        }
+
+        $request = $this->getServerRequest();
+        $uri = $this->getUri($request);
+
+        $context = GeneralUtility::makeInstance(Context::class);
+
+        $frontendTypoScript = $event->getFrontendTypoScript();
+        $cachable = (
+            $tsfe->isStaticCacheble($request) &&
+            $context->getPropertyFromAspect('workspace', 'isOffline', false) === false &&
+            strpos($uri, '?') === false &&
+            $this->isAdminPanelVisible($frontendTypoScript) === false &&
+            $this->isFrontendEditingActive($tsfe) === false &&
+            $request->getMethod() === 'GET'
+        );
+
+        if (!$cachable) {
+            return;
+        }
+
+        // @todo This is ugly because $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['pageLoadedFromCache'] was removed in v13 without replacement,
+        // and TSFE does not provide public access to current cache expiry timestamp
+        $cacheExpires = \Closure::bind(static fn() => $tsfe->cacheExpires, null, TypoScriptFrontendController::class);
+        $lifetime = $cacheExpires()- $context->getPropertyFromAspect('date', 'timestamp');
+        $this->nginxCache->set(md5($uri), $uri, $pageCacheTags, $lifetime);
+    }
+
+    /**
+     * v12 hook
+     */
     public function loadedFromCache(array &$params, TypoScriptFrontendController $tsfe): void
     {
         $row = $params['cache_pages_row'] ?? [];
-
-        $nginxCacheTags = $row['tx_nginx_cache_tags'] ?? null;
-        if ($nginxCacheTags === null) {
+        $pageCacheTags = $row['cacheTags'] ?? [];
+        if (!in_array('nginx-cache-later-cacheable', $pageCacheTags, true)) {
             return;
         }
 
@@ -55,7 +99,7 @@ class PageLoadedFromCacheHook
 
         $context = GeneralUtility::makeInstance(Context::class);
         $cachable = (
-            $tsfe->isStaticCacheble($request) &&
+            $tsfe->isStaticCacheble() &&
             $context->getPropertyFromAspect('workspace', 'isOffline', false) === false &&
             strpos($uri, '?') === false &&
             $this->isAdminPanelVisible() === false &&
@@ -68,6 +112,6 @@ class PageLoadedFromCacheHook
         }
 
         $lifetime = $row['expires'] - $context->getPropertyFromAspect('date', 'timestamp');
-        $this->nginxCache->set(md5($uri), $uri, $nginxCacheTags, $lifetime);
+        $this->nginxCache->set(md5($uri), $uri, $pageCacheTags, $lifetime);
     }
 }
