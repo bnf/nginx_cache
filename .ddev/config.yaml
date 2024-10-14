@@ -22,3 +22,8 @@ composer_version: "2"
 composer_root: .build
 web_environment: []
 nodejs_version: "16"
+# unused, as we need .ddev/web-build/Dockerfile.modperl
+#webimage_extra_packages:
+#    - nginx-module-perl
+#    - libdigest-md5-file-perl
+#    - make

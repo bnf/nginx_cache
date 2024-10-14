@@ -20,6 +20,9 @@ Just install the extension and the required nginx modules, no configuration in T
     # Debian (dpkg)
     sudo apt install nginx-extras libnginx-mod-http-perl libdigest-md5-file-perl
 
+    # Debian (dpkg) with packages from http://nginx.org/en/linux_packages.html#Debian
+    sudo apt install nginx-extras nginx-module-perl libdigest-md5-file-perl
+
     # Fedora <=32 (RPM)
     sudo dnf install nginx nginx-mod-http-perl perl-Digest-MD5
 

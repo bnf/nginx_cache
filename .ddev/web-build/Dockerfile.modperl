@@ -1,0 +1,7 @@
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -o Dpkg::Options::="--force-confold" --no-install-recommends --no-install-suggests nginx-module-perl libdigest-md5-file-perl make
+RUN sed -i \
+	-e '1i load_module "/usr/lib/nginx/modules/ngx_http_perl_module.so";' \
+	-e '/http {/a perl_modules /var/www/html/Resources/Private/nginx_purge; perl_require purge.pm;' \
+	-e '/http {/a fastcgi_cache_path /tmp/cache levels=1:2 keys_zone=TYPO3:10m inactive=24h;' \
+	/etc/nginx/nginx.conf
+RUN composer self-update --2
