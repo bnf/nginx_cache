@@ -15,15 +15,14 @@
         "bnf/cache-status": "@dev",
         "bnf/nginx-cache": "@dev",
         "cweagans/composer-patches": "^1.7",
-        "doctrine/dbal": "4.0.0-RC2@rc",
-        "typo3/cms-adminpanel": "13.1.x-dev as 13.0.0",
-        "typo3/cms-backend": "13.1.x-dev as 13.0.0",
-        "typo3/cms-core": "13.1.x-dev as 13.0.0",
-        "typo3/cms-extbase": "13.1.x-dev as 13.0.0",
-        "typo3/cms-filelist": "13.1.x-dev as 13.0.0",
-        "typo3/cms-fluid": "13.1.x-dev as 13.0.0",
-        "typo3/cms-frontend": "13.1.x-dev as 13.0.0",
-        "typo3/cms-install": "13.1.x-dev as 13.0.0"
+        "typo3/cms-adminpanel": "13.4.x-dev as 13.4.0",
+        "typo3/cms-backend": "13.4.x-dev as 13.4.0",
+        "typo3/cms-core": "13.4.x-dev as 13.4.0",
+        "typo3/cms-extbase": "13.4.x-dev as 13.4.0",
+        "typo3/cms-filelist": "13.4.x-dev as 13.4.0",
+        "typo3/cms-fluid": "13.4.x-dev as 13.4.0",
+        "typo3/cms-frontend": "13.4.x-dev as 13.4.0",
+        "typo3/cms-install": "13.4.x-dev as 13.4.0"
     },
     "config": {
         "allow-plugins": {

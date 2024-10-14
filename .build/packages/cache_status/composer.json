@@ -16,7 +16,7 @@
     ],
     "license": "GPL-2.0+",
     "require": {
-        "typo3/cms-core": "^12.4.0 || ~13.0.0 || dev-main"
+        "typo3/cms-core": "^12.4.0 || ^13.0.0 || dev-main"
     },
     "autoload": {
         "psr-4": {
