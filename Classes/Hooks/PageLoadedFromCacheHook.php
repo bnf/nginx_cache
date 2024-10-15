@@ -72,10 +72,17 @@ class PageLoadedFromCacheHook
             return;
         }
 
-        // @todo This is ugly because $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['pageLoadedFromCache'] was removed in v13 without replacement,
-        // and TSFE does not provide public access to current cache expiry timestamp
-        $cacheExpires = \Closure::bind(static fn() => $tsfe->cacheExpires, null, TypoScriptFrontendController::class);
-        $lifetime = $cacheExpires()- $context->getPropertyFromAspect('date', 'timestamp');
+        $cacheCollector = $request->getAttribute('frontend.cache.collector');
+        // => 13.3
+        if ($cacheCollector !== null) {
+            $lifetime = $cacheCollector->resolveLifetime();
+        } else {
+            // @todo This is ugly because $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['pageLoadedFromCache'] was removed in v13.0 without replacement,
+            // and TSFE does not provide public access to current cache expiry timestamp
+            $cacheExpires = \Closure::bind(static fn() => $tsfe->cacheExpires, null, TypoScriptFrontendController::class);
+            $lifetime = $cacheExpires() - $context->getPropertyFromAspect('date', 'timestamp');
+        }
+
         $this->nginxCache->set(md5($uri), $uri, $pageCacheTags, $lifetime);
     }
 
