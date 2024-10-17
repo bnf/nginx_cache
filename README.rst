@@ -125,6 +125,21 @@ Currently, the extension does not support clearing the cache in CLI context. If 
 
     curl -X PURGE https://www.domain.tld/*
 
+Prevent exceptions when extension is active on different webserver
+------------------------------------------------------------------
+If the extension is used in an environment with a different webserver (e.g. local development with apache), TYPO3
+will throw an exception when clearing the cache, because the PURGE request does not return a 200 HTTP status code.
+
+In order to prevent those exceptions, the local webserver can be configured to return the expected status code.
+The example below shows, how this can be archived when apache is used as webserver.
+
+.. code-block::
+
+    # Match PURGE requests and return a 200 OK
+    RewriteCond %{REQUEST_METHOD} PURGE
+    RewriteRule .* - [R=200,L]
+
+
 Advantages over nc_staticfilecache
 ----------------------------------
 
@@ -146,8 +161,8 @@ Versions
      - PHP
      - Support/Development
    * - `bnf/nginx-cache` 3.x
-     - 12.4
-     - 8.1 - 8.2
+     - 12.4 - 13.4
+     - 8.1 - 8.3
      - Features, Bugfixes, Security Updates
    * - `qbus/nginx-cache` 2.x
      - 7.6 - 11.5
