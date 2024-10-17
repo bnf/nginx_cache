@@ -72,7 +72,6 @@ class SetPageCacheHook
             $tsfe !== null &&
             $tsfe->isStaticCacheble($request) &&
             $context->getPropertyFromAspect('workspace', 'isOffline', false) === false &&
-            $this->isFrontendEditingActive($tsfe) === false &&
             in_array('nginx_cache_ignore', $tags, true) === false
         );
 

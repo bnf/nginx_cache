@@ -64,7 +64,6 @@ class PageLoadedFromCacheHook
             $context->getPropertyFromAspect('workspace', 'isOffline', false) === false &&
             strpos($uri, '?') === false &&
             $this->isAdminPanelVisible($frontendTypoScript) === false &&
-            $this->isFrontendEditingActive($tsfe) === false &&
             $request->getMethod() === 'GET'
         );
 
@@ -110,7 +109,6 @@ class PageLoadedFromCacheHook
             $context->getPropertyFromAspect('workspace', 'isOffline', false) === false &&
             strpos($uri, '?') === false &&
             $this->isAdminPanelVisible() === false &&
-            $this->isFrontendEditingActive($tsfe) === false &&
             $request->getMethod() === 'GET'
         );
 
