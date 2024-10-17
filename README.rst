@@ -146,8 +146,8 @@ Versions
      - PHP
      - Support/Development
    * - `bnf/nginx-cache` 3.x
-     - 12.4
-     - 8.1 - 8.2
+     - 12.4 -13.4
+     - 8.1 - 8.3
      - Features, Bugfixes, Security Updates
    * - `qbus/nginx-cache` 2.x
      - 7.6 - 11.5
