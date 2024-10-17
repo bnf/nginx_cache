@@ -53,17 +53,6 @@ trait RequestAwareTrait
         );
     }
 
-    protected function isFrontendEditingActive(TypoScriptFrontendController $frontendController): bool
-    {
-        return (
-            /* Note: we do not use $GLOBALS['BE_USER']->isFrontendEditingActive() as that checks
-             * additional for adminPanel->isAdminModuleEnabled('edit'), but that has no influence
-             * on cache clearing. */
-            $frontendController->displayEditIcons == 1 ||
-            $frontendController->displayFieldEditIcons == 1
-        );
-    }
-
     protected function getUri(ServerRequestInterface $request): string
     {
         $normalizedParams = $this->getNormalizedParams($request);
