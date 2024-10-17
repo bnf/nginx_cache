@@ -133,11 +133,11 @@ will throw an exception when clearing the cache, because the PURGE request does 
 In order to prevent those exceptions, the local webserver can be configured to return the expected status code.
 The example below shows, how this can be archived when apache is used as webserver.
 
-```
-# Match PURGE requests and return a 200 OK
-RewriteCond %{REQUEST_METHOD} PURGE
-RewriteRule .* - [R=200,L]
-````
+.. code-block::
+
+    # Match PURGE requests and return a 200 OK
+    RewriteCond %{REQUEST_METHOD} PURGE
+    RewriteRule .* - [R=200,L]
 
 
 Advantages over nc_staticfilecache
