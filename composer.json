@@ -17,17 +17,14 @@
     ],
     "license": "GPL-2.0+",
     "require": {
-        "typo3/cms-core": "^12.4.0 || ^13.0",
-        "typo3/cms-frontend": "^12.4.0 || ^13.0",
-        "typo3/cms-backend": "^12.4.0 || ^13.0"
+        "typo3/cms-core": "^14.2",
+        "typo3/cms-frontend": "^14.2",
+        "typo3/cms-backend": "^14.2"
     },
     "autoload": {
         "psr-4": {
             "Bnf\\NginxCache\\": "Classes"
         }
-    },
-    "replace": {
-        "typo3-ter/nginx-cache": "self.version"
     },
     "extra": {
         "typo3/cms": {

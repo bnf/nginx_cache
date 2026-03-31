@@ -21,47 +21,28 @@ use TYPO3\CMS\Core\Cache\Backend\TransientBackendInterface;
 use TYPO3\CMS\Core\Cache\Backend\Typo3DatabaseBackend;
 use TYPO3\CMS\Core\Cache\Exception;
 use TYPO3\CMS\Core\Cache\Exception\InvalidDataException;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class NginxCacheBackend extends Typo3DatabaseBackend implements TransientBackendInterface
+final readonly class NginxCacheBackend implements TransientBackendInterface
 {
-    /**
-     * Saves data in a cache file.
-     *
-     * @param string $entryIdentifier An identifier for this specific cache entry
-     * @param string $data The data to be stored
-     * @param array $tags Tags to associate with this cache entry
-     * @param int $lifetime Lifetime of this cache entry in seconds. If NULL is specified, the default lifetime is used. "0" means unlimited liftime.
-     * @return void
-     * @throws Exception            if no cache frontend has been set.
-     * @throws InvalidDataException if the data to be stored is not a string.
-     */
-    public function set($entryIdentifier, $data, array $tags = array(), $lifetime = null)
+    private Typo3DatabaseBackend $backend;
+
+    public function __construct()
     {
-        parent::set($entryIdentifier, $data, $tags, $lifetime);
-
-        if ($lifetime === 0) {
-            // unlimited is not supported by nginx
-            $lifetime = 24 * 60 * 60;
-        }
-
-        /* Note: We use an explicit opt-in strategy to define requests as cachable.
-         * That means this functionality relies on the "fastcgi_cache_valid 0"
-         * in nginx.conf as documented in README.rst  */
-        header('X-Accel-Expires: ' . $lifetime);
+        $this->backend = new Typo3DatabaseBackend();
     }
 
-    /**
-     * Removes all cache entries matching the specified identifier.
-     *
-     * @param  string $entryIdentifier Specifies the cache entry to remove
-     * @return bool   TRUE if (at least) an entry could be removed or FALSE if no entry was found
-     */
-    public function remove($entryIdentifier)
+    public function set(string $entryIdentifier, mixed $data, array $tags = [], ?int $lifetime = null): void
     {
-        $url = parent::get($entryIdentifier);
+        $this->backend->set($entryIdentifier, $data, $tags, $lifetime);
+    }
+
+    public function remove(string $entryIdentifier): bool
+    {
+        $url = $this->backend->get($entryIdentifier);
         if ($url === false) {
             /* The key is not available. Do nothing. */
             return false;
@@ -69,15 +50,10 @@ class NginxCacheBackend extends Typo3DatabaseBackend implements TransientBackend
 
         $this->purge($url);
 
-        return parent::remove($entryIdentifier);
+        return $this->backend->remove($entryIdentifier);
     }
 
-    /**
-     * Removes all cache entries of this cache.
-     *
-     * @return void
-     */
-    public function flush()
+    public function flush(): void
     {
         /* FIXME: this won't work for cli requests. We could try do derive the site_url from
          * existing cache entries (using findIdentifierByTag?).
@@ -89,16 +65,10 @@ class NginxCacheBackend extends Typo3DatabaseBackend implements TransientBackend
         $url = GeneralUtility::getIndpEnv('TYPO3_SITE_URL') . '*';
         $this->purge($url);
 
-        parent::flush();
+        $this->backend->flush();
     }
 
-    /**
-     * Removes all cache entries of this cache which are tagged by the specified tag.
-     *
-     * @param  string $tag The tag the entries must have
-     * @return void
-     */
-    public function flushByTag($tag)
+    public function flushByTag(string $tag): void
     {
         $identifiers = $this->findIdentifiersByTag($tag);
         foreach ($identifiers as $identifier) {
@@ -107,12 +77,9 @@ class NginxCacheBackend extends Typo3DatabaseBackend implements TransientBackend
     }
 
     /**
-     * Removes all cache entries of this cache which are tagged by any of the specified tags.
-     *
-     * @param string[] $tags List of tags
-     * @return void
+     * @param list<string> $tasgs
      */
-    public function flushByTags(array $tags)
+    public function flushByTags(array $tags): void
     {
         array_walk($tags, [$this, 'flushByTag']);
     }
@@ -149,5 +116,30 @@ class NginxCacheBackend extends Typo3DatabaseBackend implements TransientBackend
         }
 
         return $content;
+    }
+
+    public function get(string $entryIdentifier): mixed
+    {
+        return $this->backend->get($entryIdentifier);
+    }
+
+    public function has(string $entryIdentifier): bool
+    {
+        return $this->backend->has($entryIdentifier);
+    }
+
+    public function collectGarbage(): void
+    {
+        $this->backend->collectGarbage();
+    }
+
+    public function setCache(FrontendInterface $cache): void
+    {
+        $this->backend->setCache($cache);
+    }
+
+    public function getTableDefinitions(): string
+    {
+        return $this->backend->getTableDefinitions();
     }
 }
