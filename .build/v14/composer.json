@@ -14,12 +14,13 @@
     "require": {
         "bnf/cache-status": "@dev",
         "bnf/nginx-cache": "@dev",
-        "typo3/cms-adminpanel": "^12.4",
-        "typo3/minimal": "^12.4"
+        "typo3/cms-adminpanel": "^14.2",
+        "typo3/cms-install": "^14.2",
+        "typo3/minimal": "^14.0"
     },
     "config": {
         "allow-plugins": {
-            "typo3/class-alias-loader": true,
+            "typo3/class-alias-loader": false,
             "typo3/cms-composer-installers": true
         }
     }
