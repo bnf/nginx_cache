@@ -145,11 +145,15 @@ Versions
      - TYPO3
      - PHP
      - Support/Development
-   * - `bnf/nginx-cache` 3.x
-     - 12.4 -13.4
-     - 8.1 - 8.3
+   * - `bnf/nginx-cache` 3.1.x
+     - 14.2 - 14.3
+     - 8.2 - 8.5
      - Features, Bugfixes, Security Updates
+   * - `bnf/nginx-cache` 3.0.x
+     - 12.4 - 13.4
+     - 8.1 - 8.3
+     - Bugfixes, Security Updates
    * - `qbus/nginx-cache` 2.x
      - 7.6 - 11.5
      - 5.6 - 8.1
-     - Features, Bugfixes, Security Updates
+     - Bugfixes, Security Updates
