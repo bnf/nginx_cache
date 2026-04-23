@@ -97,7 +97,8 @@ assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
 # todo: ideally the update would only happen if the user pressed ctrl+shift+r(?)
 assert_raises "test_hit / HIT HIT"
 
-echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | mysql db
+echo >> $ROOT/.build/${PREFIX}/config/sites/main/setup.typoscript
+echo config.admPanel = 1 >> $ROOT/.build/${PREFIX}/config/sites/main/setup.typoscript
 clear_cache
 login
 assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
@@ -107,7 +108,7 @@ assert_raises "test_hit / BYPASS HIT '-b $cookiefile -c $cookiefile'"
 # …will be served cached
 assert_raises "test_hit / HIT HIT"
 
-#echo "UPDATE sys_template set config = REPLACE(config, 'page = PAGE', 'config.admPanel = 1\npage = PAGE')" | mysql db
+#echo config.admPanel = 1 >> $ROOT/.build/${PREFIX}/config/sites/main/setup.typoscript
 clear_cache
 login
 assert_raises "test_hit / BYPASS MISS  '-b $cookiefile -c $cookiefile'"
